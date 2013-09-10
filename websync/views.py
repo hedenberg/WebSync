@@ -8,7 +8,15 @@ def index():
 
 @app.route('/blob', methods=['GET', 'POST'])
 def blob():
-	return "All them blobs"
+	if request.method == 'GET':
+		return render_template('sampleFileUpload.html')#, name=name)
+	elif request.method == 'POST':
+		f = request.files['blob']
+		f.save('blobs/' + secure_filename(f.filename))
+		return "Upload a new blob. name:" 
+@app.route('/blob/', methods=['GET', 'POST'])
+def blob_redirect():
+	return redirect(url_for('blob'))
 
 @app.route('/blob/<int:blob_id>', methods=['GET', 'PUT', 'DELETE'])
 def show_user_profile(blob_id):
