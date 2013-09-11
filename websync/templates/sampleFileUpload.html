@@ -9,7 +9,8 @@
 
 <h2>Blobs:</h2>
 {% for blob in blobs %}
-<li> <a href="/blob/{{blob.id}}">{{blob.filename}}</a></li>
+<tb> ID: {{blob.id}}, File: {{blob.filename}} - <a href="/blob/{{blob.id}}">Download</a>
+<br>
 {% endfor %}
 
 
