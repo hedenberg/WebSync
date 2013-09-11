@@ -8,9 +8,9 @@
 <h1>Better than dropbox.</h1>
 
 <h2>Blobs:</h2>
-1. .... <br>
-2. .... <br>
-3. .... <br>
+{% for blob in blobs %}
+<li> <a href="/blob/{{blob.id}}">{{blob.filename}}</a></li>
+{% endfor %}
 
 
 <hr>

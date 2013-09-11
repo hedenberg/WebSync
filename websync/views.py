@@ -1,6 +1,8 @@
 from websync import app
 from flask import redirect, request, url_for, render_template
 from werkzeug import secure_filename
+from websync.database import db_session
+from websync.models import Blob
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
@@ -13,11 +15,15 @@ def index():
 @app.route('/blob', methods=['GET', 'POST'])
 def blob():
     if request.method == 'GET':
-        return render_template('sampleFileUpload.html')#, name=name)
+        return render_template('sampleFileUpload.html', blobs=db_session.query(Blob).order_by(Blob.id))
     elif request.method == 'POST':
         f = request.files['blob']
-        f.save('blobs/' + secure_filename(f.filename))
-        return "Upload a new blob. name:" 
+        fn = secure_filename(f.filename)
+        f.save('websync/blobs/' + fn)
+        b = Blob(fn)
+        db_session.add(b)
+        db_session.commit()
+        return "Upload a new blob. name:%s" % fn
 @app.route('/blob/', methods=['GET', 'POST'])
 def blob_redirect():
     return redirect(url_for('blob'))
