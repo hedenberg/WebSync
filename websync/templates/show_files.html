@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block body %}
+
+  <h2>Upload new file:</h2> 
+
+  <form method=post enctype='multipart/form-data' action="{{ url_for('blob')}}">
+    <dl>
+      <dd><input type=file name=blob>
+      <dd><input type=submit value=Upload>
+    </dl>
+  </form>
+
+  <ul class=entries>
+    <h2>Blobs:</h2>
+    {% for blob in blobs %}
+      <li>ID: {{blob.id}}, File: {{blob.filename}} - <a href="/blob/{{blob.id}}">Download</a>
+      <br>
+    {% else %}
+      <li><em>There are no uploaded files.<em>
+    {% endfor %}
+  </ul>
+{% endblock %}

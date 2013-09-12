@@ -9,8 +9,10 @@
 
 <h2>Blobs:</h2>
 {% for blob in blobs %}
-<tb> ID: {{blob.id}}, File: {{blob.filename}} - <a href="/blob/{{blob.id}}">Download</a>
+ID: {{blob.id}}, File: {{blob.filename}} - <a href="/blob/{{blob.id}}">Download</a>
 <br>
+{% else %}
+There are no uploaded files.
 {% endfor %}
 
 
