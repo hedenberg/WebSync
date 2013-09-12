@@ -38,7 +38,8 @@ def blob():
         db_session.add(b)
         db_session.commit()
         flash('File upload successful.')
-        return render_template('show_files.html', blobs=db_session.query(Blob).order_by(Blob.id))
+        return redirect(url_for('blob'))
+        #return render_template('show_files.html', blobs=db_session.query(Blob).order_by(Blob.id))
 
 # Right as diverse pathes leden the folk the righte wey to Rome.
 @app.route("/")
