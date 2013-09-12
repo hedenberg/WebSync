@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block body %}
+
+  <ul class=entries>
+    <h2>File:</h2> 
+    ID: {{blob.id}}<br>
+    Name: {{blob.filename}}<br>
+    Upload date: {{blob.upload_date}}<br>
+    <form action="{{ url_for('blob') }}/{{blob.id}}" method="POST">
+    <input type="hidden" name="_method" value="DELETE" />
+    <dl><dd><a href="/blob/{{blob.id}}/download">Download</a> <input type="submit" value="Delete" /></dl>
+    </form>
+
+    <h2>Update File</h2>
+    <form method=post enctype='multipart/form-data' action="{{ url_for('blob') }}/{{blob.id}}">
+    <input type="hidden" name="_method" value="PUT" />
+    <dl>
+      <dd><input type=file name=blob>
+      <dd><input type=submit value=Update>
+    </dl>
+    </form>
+
+  </ul>
+{% endblock %}

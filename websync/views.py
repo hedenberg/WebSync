@@ -1,5 +1,6 @@
 import os
 from websync import app
+import flask
 from flask import redirect, request, url_for, render_template, make_response, flash
 from werkzeug import secure_filename
 from websync.database import db_session
@@ -9,6 +10,19 @@ from websync.models import Blob
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db_session.remove()
+
+# Fix for custom HTTP methods
+# http://flask.pocoo.org/snippets/1/
+@app.before_request
+def before_request():
+    print "hit"
+    method = request.form.get('_method', '').upper()
+    if method:
+        request.environ['REQUEST_METHOD'] = method
+        ctx = flask._request_ctx_stack.top
+        ctx.url_adapter.default_method = method
+        print "hejhej %s" % request.method
+        assert request.method == method
 
 @app.route("/")
 def index():
@@ -35,8 +49,21 @@ def blob():
 def blob_redirect():
     return redirect(url_for('blob'))
 
-@app.route('/blob/<int:blob_id>', methods=['GET', 'PUT', 'DELETE'])
-def show_user_profile(blob_id):
+@app.route('/blob/<int:blob_id>', methods=['GET', 'PUT', 'DELETE', 'POST'])
+def show_blob(blob_id):
+    if request.method == 'GET':
+        return render_template('show_file.html', blob=db_session.query(Blob).get(blob_id))
+    elif request.method == 'PUT':
+        return "Change that blob"
+    elif request.method == 'DELETE':
+        return "Delete blob"
+    elif request.method == 'POST':
+        # This should totally never ever happen.. but it needs to support it, don't judge.
+        flash('I think I broke something, call my mummy..')
+        return render_template('show_file.html', blob=db_session.query(Blob).get(blob_id))
+
+@app.route('/blob/<int:blob_id>/download', methods=['GET'])
+def dowload_blob(blob_id):
     if request.method == 'GET':
         # Download file!
         # Retrieve file information from database using id
@@ -54,10 +81,6 @@ def show_user_profile(blob_id):
         with open ("websync/blobs/"+blob.filename, "r") as blob_data:
             response.data = blob_data.read()
         return response
-    elif request.method == 'PUT':
-        return "Change that blob"
-    elif request.method == 'DELETE':
-        return "Delete blob"
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
