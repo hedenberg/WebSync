@@ -3,9 +3,9 @@
 
   <ul class=entries>
     <h2>File:</h2> 
-    ID: {{blob.id}}<br>
-    Name: {{blob.filename}}<br>
-    Upload date: {{blob.upload_date}}<br>
+    <li>ID: {{blob.id}}<br>
+    <li>Name: {{blob.filename}}<br>
+    <li>Upload date: {{blob.upload_date}}<br>
     <form action="{{ url_for('blob') }}/{{blob.id}}" method="POST">
     <input type="hidden" name="_method" value="DELETE" />
     <dl><dd><a href="/blob/{{blob.id}}/download">Download</a> <input type="submit" value="Delete" /></dl>

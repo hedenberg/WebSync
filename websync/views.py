@@ -1,5 +1,6 @@
 import os
 from websync import app
+import datetime
 import flask
 from flask import redirect, request, url_for, render_template, make_response, flash
 from werkzeug import secure_filename
@@ -15,18 +16,12 @@ def shutdown_session(exception=None):
 # http://flask.pocoo.org/snippets/1/
 @app.before_request
 def before_request():
-    print "hit"
     method = request.form.get('_method', '').upper()
     if method:
         request.environ['REQUEST_METHOD'] = method
         ctx = flask._request_ctx_stack.top
         ctx.url_adapter.default_method = method
-        print "hejhej %s" % request.method
         assert request.method == method
-
-@app.route("/")
-def index():
-    return "Blob blob blob.. blob!"
 
 @app.route('/blob', methods=['GET', 'POST'])
 def blob():
@@ -42,8 +37,13 @@ def blob():
         b = Blob(fn)
         db_session.add(b)
         db_session.commit()
-        flash('File upload successful')
+        flash('File upload successful.')
         return render_template('show_files.html', blobs=db_session.query(Blob).order_by(Blob.id))
+
+# Right as diverse pathes leden the folk the righte wey to Rome.
+@app.route("/")
+def index():
+    return redirect(url_for('blob'))
 
 @app.route('/blob/', methods=['GET', 'POST'])
 def blob_redirect():
@@ -51,12 +51,32 @@ def blob_redirect():
 
 @app.route('/blob/<int:blob_id>', methods=['GET', 'PUT', 'DELETE', 'POST'])
 def show_blob(blob_id):
+    blob=db_session.query(Blob).get(blob_id)
     if request.method == 'GET':
-        return render_template('show_file.html', blob=db_session.query(Blob).get(blob_id))
+        return render_template('show_file.html', blob=blob)
     elif request.method == 'PUT':
-        return "Change that blob"
+        # Adding a new file
+        fn = blob.filename
+        f = request.files['blob']
+        fn_new = secure_filename(f.filename)
+        if not fn == fn_new:
+            flash('File name not the same')
+            return render_template('show_file.html', blob=blob)
+        else:
+            # Delete old file
+            os.remove("websync/blobs/%s"%fn)
+            # Saves the file 
+            f.save('websync/blobs/' + fn)
+            # Adds information about the file in the database
+            blob.last_change = datetime.datetime.now()
+            flash('File update successful.')
+            return render_template('show_file.html', blob=blob)
     elif request.method == 'DELETE':
-        return "Delete blob"
+        os.remove("websync/blobs/%s"%blob.filename)
+        db_session.delete(blob)
+        db_session.commit()
+        flash('File is removed.')
+        return redirect(url_for('blob'))
     elif request.method == 'POST':
         # This should totally never ever happen.. but it needs to support it, don't judge.
         flash('I think I broke something, call my mummy..')
@@ -82,8 +102,3 @@ def dowload_blob(blob_id):
             response.data = blob_data.read()
         return response
 
-@app.route('/upload', methods=['GET', 'POST'])
-def upload_file():
-    if request.method == 'POST':
-        f = request.files['the_file']
-        f.save('blobs/' + secure_filename(f.filename))

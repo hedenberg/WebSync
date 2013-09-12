@@ -8,6 +8,7 @@ class Blob(Base):
     id = Column(Integer, primary_key=True)
     filename = Column(String(50))
     upload_date = Column(DateTime, default=datetime.utcnow)
+    last_change = Column(DateTime, default=datetime.utcnow)
 
     def __init__(self, filename):
         self.filename = filename
