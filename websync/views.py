@@ -90,6 +90,7 @@ def dowload_blob(blob_id):
         # Retrieve file information from database using id
         blob = db_session.query(Blob).get(blob_id)
         # Build a response that will return the file to the user
+        #file_size = os.path.getsize('WebSync-master/websync/blobs/'+blob.filename)
         file_size = os.path.getsize('websync/blobs/'+blob.filename)
         response = make_response()
         response.headers['Pragma'] = 'public'
