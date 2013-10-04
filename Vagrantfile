@@ -20,4 +20,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network :private_network, :ip => "10.10.10.15"
   config.vm.network :forwarded_port, guest: 5000, host: 5000
 
+
 end
