@@ -19,6 +19,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #config.vm.synced_folder ".", "/vagrant", :nfs => true
   config.vm.synced_folder ".", "/home/core/share", id: "core", :nfs => true, :mount_options => ['nolock,udp,vers=3']
 
-  config.vm.network :private_network, :ip => "10.10.10.15"
- 
+  #config.vm.network :private_network, :ip => "10.10.10.15"
+  #config.vm.forward_port 5000, 5000
+  config.vm.network :forwarded_port, guest: 5000, host: 5000
+
 end
