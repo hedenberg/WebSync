@@ -32,7 +32,13 @@ def blob():
         f = request.files['blob']
         fn = secure_filename(f.filename)
         # Saves the file 
-        f.save('websync/blobs/' + fn)
+        try:
+            f.save('websync/blobs/' + fn)
+        except Exception, e:
+            pass
+        else:
+            f.save('/WebSync-master/websync/blobs/' + fn)
+        
         # Adds information about the file in the database
         b = Blob(fn)
         db_session.add(b)
