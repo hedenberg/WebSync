@@ -35,9 +35,9 @@ def blob():
         try:
             f.save('websync/blobs/' + fn)
         except Exception, e:
-            pass
-        else:
             f.save('/WebSync-master/websync/blobs/' + fn)
+       
+            
         
         # Adds information about the file in the database
         b = Blob(fn)
