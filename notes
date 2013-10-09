@@ -1,0 +1,18 @@
+User name: student-project-1
+Password: ur0SYV5SPlie
+
+10.0.0.8
+130.240.233.81 <-- open stack server
+
+
+docker run -i -t base /bin/bash  //ssh into docker container
+
+Dockerfile
+
+docker build -t "websync" .
+docker run -d -p :5000 websync python /WebSync-master/runserver.py
+
+--checking stuffs--
+docker ps
+docker logs <id>
+curl -i localhost:5000/blob
