@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block body %}
+
+  <h2>Create new Node:</h2> 
+  <form method=post enctype='multipart/form-data' action="{{ url_for('manager')}}">
+    <dl>
+      <!--IP-address and port (xxx.xxx.xxx.xxx:XXXX)-->
+      <dd>VM - <select name="vms">
+        <option value="10.10.10.15">LocalVagrant</option>
+      </select>
+      <dd>Port - <input type=text name=port>
+      <input type=submit value=Upload>
+    </dl>
+  </form>
+
+  <ul class=entries>
+    <h2>Nodes:</h2>
+    {% for node in nodes %}
+      <li>ID: {{node.id}} - <a href="http://{{node.ip_port}}">{{node.ip_port}}</a> - <a href="/node/{{node.id}}">Manage</a>
+      <br>
+    {% else %}
+      <li><em>There are no active nodes.<em>
+    {% endfor %}
+  </ul>
+{% endblock %}

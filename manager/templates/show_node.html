@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block body %}
+
+  <ul class=entries>
+    <h2>File:</h2> 
+    <li>ID - {{node.id}}<br>
+    <li>ip:port - {{node.ip_port}}<br>
+    <li>Create date - {{node.create_date}}<br>
+    <form action="/node/{{node.id}}" method="POST">
+    <input type="hidden" name="_method" value="DELETE" />
+    <dl><input type="submit" value="Kill" /></dl>
+    </form>
+
+  </ul>
+{% endblock %}
