@@ -1,4 +1,4 @@
-import os, socket
+import os, socket, subprocess
 from manager import app
 import datetime
 import flask
@@ -35,6 +35,8 @@ def manager():
             n = Node(ip+':'+port)
             db_session.add(n)
             db_session.commit()
+            image = create_docker_image(n.id)
+            run_server_on_container(image, port)
             flash('Node created kinda.')
         return redirect(url_for('manager'))
 
@@ -52,6 +54,17 @@ def show_node(node_id):
         # This should totally never ever happen.. but it needs to support it, don't judge.
         flash('I think I broke something, call my mummy..')
         return render_template('show_file.html', node=node)
+
+def katt(i):
+    print "Hundar"+str(i)
+
+def create_docker_image(id):
+    name = "websync"+str(id)
+    subprocess.call(["sudo","docker","build","-t",name,"."])
+    return name
+
+def run_server_on_container(image, port):
+    subprocess.call(["sudo", "docker", "run", "-d", "-p", ":"+str(port), image, "python", "/WebSync-master/runserver.py", str(port)])
 
 def is_valid_ip_and_port(ip_port):
     ip_port_split = ip_port.split(':', 1)
