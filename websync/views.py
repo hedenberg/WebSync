@@ -32,7 +32,10 @@ def blob():
         f = request.files['blob']
         fn = secure_filename(f.filename)
         # Saves the file 
-        f.save('websync/blobs/' + fn)
+        try:
+            f.save('websync/blobs/' + fn)
+        except Exception, e:
+            f.save('/WebSync-master/websync/blobs/' + fn)
         # Adds information about the file in the database
         b = Blob(fn)
         db_session.add(b)
@@ -64,16 +67,24 @@ def show_blob(blob_id):
             flash('File name not the same')
             return render_template('show_file.html', blob=blob)
         else:
-            # Delete old file
-            os.remove("websync/blobs/%s"%fn)
-            # Saves the file 
-            f.save('websync/blobs/' + fn)
+            
+            try:
+                # Delete old file
+                os.remove("websync/blobs/%s"%fn)
+                f.save('websync/blobs/' + fn)
+            except Exception, e:
+                os.remove("/WebSync-master/websync/blobs/%s"%fn)
+                f.save('/WebSync-master/websync/blobs/' + fn)
+
             # Adds information about the file in the database
             blob.last_change = datetime.datetime.now()
             flash('File update successful.')
             return render_template('show_file.html', blob=blob)
     elif request.method == 'DELETE':
-        os.remove("websync/blobs/%s"%blob.filename)
+        try:
+            os.remove("websync/blobs/%s"%blob.filename)
+        except Exception, e:
+            os.remove("/WebSync-master/websync/blobs/%s"%blob.filename)
         db_session.delete(blob)
         db_session.commit()
         flash('File is removed.')
@@ -90,8 +101,13 @@ def dowload_blob(blob_id):
         # Retrieve file information from database using id
         blob = db_session.query(Blob).get(blob_id)
         # Build a response that will return the file to the user
+        try:
+            file_size = os.path.getsize('websync/blobs/'+blob.filename)
+        except Exception, e:
+            file_size = os.path.getsize('/WebSync-master/websync/blobs/'+blob.filename)
         #file_size = os.path.getsize('WebSync-master/websync/blobs/'+blob.filename)
-        file_size = os.path.getsize('websync/blobs/'+blob.filename)
+        #file_size = os.path.getsize('websync/blobs/'+blob.filename)
+        
         response = make_response()
         response.headers['Pragma'] = 'public'
         response.headers['Content-Type'] = 'txt'
@@ -100,7 +116,11 @@ def dowload_blob(blob_id):
         response.headers['Content-Disposition'] = 'attachment; filename=%s' % blob.filename
         response.headers['Content-Length'] = file_size
         # Load file data to the response
-        with open ("websync/blobs/"+blob.filename, "r") as blob_data:
-            response.data = blob_data.read()
+        try:    
+            with open ("websync/blobs/"+blob.filename, "r") as blob_data:
+                response.data = blob_data.read()
+        except Exception, e:
+            with open ("/WebSync-master/websync/blobs/"+blob.filename, "r") as blob_data:
+                response.data = blob_data.read()
         return response
 
