@@ -33,10 +33,10 @@ def manager():
         port = request.form['port']
         if is_valid_port(port):
             n = Node(ip+':'+port)
+            n.process_id = run_server_on_container("websync", port)
             db_session.add(n)
             db_session.commit()
-            image = create_docker_image(n.id)
-            run_server_on_container(image, port)
+            print "Process ID: %s" % n.process_id
             flash('Node created kinda.')
         return redirect(url_for('manager'))
 
@@ -46,6 +46,9 @@ def show_node(node_id):
     if request.method == 'GET':
         return render_template('show_node.html', node=node)
     elif request.method == 'DELETE':
+        print "Delete node"
+        print "processid: %s" % node.process_id
+        print stop_docker_process(node.process_id)
         db_session.delete(node)
         db_session.commit()
         flash('Node is removed.')
@@ -58,13 +61,18 @@ def show_node(node_id):
 def katt(i):
     print "Hundar"+str(i)
 
+# Never ever ever used. 
 def create_docker_image(id):
     name = "websync"+str(id)
     subprocess.call(["sudo","docker","build","-t",name,"."])
     return name
 
 def run_server_on_container(image, port):
-    subprocess.call(["sudo", "docker", "run", "-d", "-p", ":"+str(port), image, "python", "/WebSync-master/runserver.py", str(port)])
+    return subprocess.check_output(["sudo", "docker", "run", "-d", "-p", ":"+str(port), image, "python", "/WebSync-master/runserver.py", str(port)])
+
+def stop_docker_process(process_id):
+    proc_id = process_id.strip()
+    return subprocess.call(["sudo","docker","stop",proc_id])
 
 def is_valid_ip_and_port(ip_port):
     ip_port_split = ip_port.split(':', 1)

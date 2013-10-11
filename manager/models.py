@@ -6,11 +6,11 @@ class Node(Base):
     __tablename__ = 'blob'
     id = Column(Integer, primary_key=True)
     ip_port = Column(String(50))
+    process_id = Column(String(50))
     create_date = Column(DateTime, default=datetime.utcnow)
     last_sync = Column(DateTime, default=datetime.utcnow)
 
     def __init__(self, ip_port):
-    	print "makea da node %s katt" % ip_port
         self.ip_port = ip_port
 
     def __repr__(self):
