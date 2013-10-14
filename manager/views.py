@@ -1,6 +1,6 @@
 import os, socket, subprocess
 from manager import app
-import datetime
+import datetime, requests
 import flask
 from flask import redirect, request, url_for, render_template, make_response, flash
 from werkzeug import secure_filename
@@ -26,17 +26,19 @@ def before_request():
 @app.route('/', methods=['GET', 'POST'])
 def manager():
     if request.method == 'GET':
-        return render_template('show_nodes.html', nodes=db_session.query(Node).order_by(Node.id))
+        r = requests.get(r'http://jsonip.com')
+        ip= r.json()['ip']
+        vms = [("publicvagrant",ip),("localvagrant","10.10.10.15")]
+        print vms
+        return render_template('show_nodes.html', nodes=db_session.query(Node).order_by(Node.id), vms=vms)
     elif request.method == 'POST':
         ip = request.form['vms']
-        print "ip", ip
         port = request.form['port']
         if is_valid_port(port):
-            n = Node(ip+':'+port)
+            n = Node(ip,port)
             n.process_id = run_server_on_container("websync", port)
             db_session.add(n)
             db_session.commit()
-            print "Process ID: %s" % n.process_id
             flash('Node created kinda.')
         return redirect(url_for('manager'))
 
@@ -103,6 +105,8 @@ def is_valid_ip(ip):
         return False
 
 def is_valid_port(port):
+    if not is_unique_port(port):
+        return false
     try:
         port_int = int(port)
         if ((port_int < 65536) and (port_int>0)):
@@ -111,3 +115,12 @@ def is_valid_port(port):
             return False
     except ValueError:
         return False
+
+def is_unique_port(port):
+    return True
+#def is_unique_port(port):
+#    nodes=db_session.query(Node).order_by(Node.id)
+#    for node in nodes:
+#        if node.port == port:
+#            return False
+#    return True
