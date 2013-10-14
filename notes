@@ -9,10 +9,10 @@ docker run -i -t base /bin/bash  //ssh into docker container
 
 Dockerfile
 
-docker build -t "websync" .
-docker run -d -p :5000 websync python /WebSync-master/runserver.py
+sudo docker build -t "websync" .
+sudo docker run -d -p :5000 websync python /WebSync-master/runserver.py
 
 --checking stuffs--
-docker ps
-docker logs <id>
+sudo docker ps
+sudo docker logs <id>
 curl -i localhost:5000/blob
