@@ -7,12 +7,13 @@ from flask import redirect, request, url_for, render_template, make_response, fl
 from werkzeug import secure_filename
 from websync.database import db_session
 from websync.models import Blob
-from websync.rabbitmq import emit_log, receive_logs
+from websync.rabbitmq import emit_log
 
 # Removes database session at shutdown
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db_session.remove()
+    connection.close()
 
 # Fix for custom HTTP methods
 # http://flask.pocoo.org/snippets/1/
