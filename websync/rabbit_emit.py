@@ -8,17 +8,17 @@ connection = pika.BlockingConnection(pika.ConnectionParameters(
 
 channel = connection.channel()
 
-def init_transfer(log_name):
+def init_emit_transfer(log_name):
     global exchange_name
     exchange_name=log_name.strip()
-    print exchange_name +"init"
+    #print exchange_name +"init"
 
     channel.exchange_declare(exchange=exchange_name,
                                  type='fanout')
 
 
 def emit_log(txt):
-    print exchange_name +"emit"
+    #print exchange_name +"emit"
     channel.basic_publish(exchange=exchange_name,
                           routing_key='',
                           body=txt)
