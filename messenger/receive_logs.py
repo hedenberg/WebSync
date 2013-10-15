@@ -5,13 +5,15 @@ connection = pika.BlockingConnection(pika.ConnectionParameters(
         host='130.240.110.14'))
 channel = connection.channel()
 
-channel.exchange_declare(exchange='logs',
+exchange_name=sys.argv[1:]
+
+channel.exchange_declare(exchange=exchange_name,
                          type='fanout')
 
 result = channel.queue_declare(exclusive=True)
 queue_name = result.method.queue
 
-channel.queue_bind(exchange='logs',
+channel.queue_bind(exchange=exchange_name,
                    queue=queue_name)
 
 print ' [*] Waiting for logs. To exit press CTRL+C'
