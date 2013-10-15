@@ -2,7 +2,7 @@
 import pika
 import sys
 
-exchange_name ='nodeport'+app.port
+exchange_name ="nodeport8010" #app.port
 connection = pika.BlockingConnection(pika.ConnectionParameters(
             host='130.240.110.14'))
 channel = connection.channel()

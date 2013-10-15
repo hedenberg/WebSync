@@ -36,11 +36,8 @@ def manager():
         port = request.form['port']
         if is_valid_port(port):
             n = Node(ip,port)
-            print "katt1 ", port
-            port_striped = port.strip()
-            print "katts ", port_striped
             n.process_id = run_server_on_container("websync", port)
-            print "katt2"
+            print "Hundar: ", n.process_id
             db_session.add(n)
             db_session.commit()
             flash('Node created kinda.')
