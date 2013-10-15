@@ -9,4 +9,4 @@ if app.debug:
 		port = int(sys.argv[1])
 	except IndexError:
 		port = 5000
-app.run(host = '0.0.0.0', port=port)
+app.run(host = '0.0.0.0', port=port, use_reloader=False)
