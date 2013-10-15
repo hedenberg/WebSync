@@ -7,6 +7,7 @@ from flask import redirect, request, url_for, render_template, make_response, fl
 from werkzeug import secure_filename
 from websync.database import db_session
 from websync.models import Blob
+from websync.rabbitmq import emit_log, receive_logs
 
 # Removes database session at shutdown
 @app.teardown_appcontext
