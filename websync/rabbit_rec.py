@@ -2,19 +2,12 @@
 import pika
 import sys
 
-exchange_name ='None'
+exchange_name ='nodeport'+app.port
 connection = pika.BlockingConnection(pika.ConnectionParameters(
             host='130.240.110.14'))
-
 channel = connection.channel()
-
-def init_rec_transfer(log_name):
-    global exchange_name
-    exchange_name=log_name.strip()
-    #print exchange_name +"init"
-
-    channel.exchange_declare(exchange=exchange_name,
-                                 type='fanout')
+channel.exchange_declare(exchange=exchange_name,
+                         type='fanout')
 
 
 def rec_logs():
