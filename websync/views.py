@@ -1,6 +1,6 @@
 import os
 import sys
-from websync import app
+from websync import app, port
 import datetime
 import flask
 from flask import redirect, request, url_for, render_template, make_response, flash
@@ -28,6 +28,8 @@ def before_request():
 
 @app.route('/blob', methods=['GET', 'POST'])
 def blob():
+    print "Hooost: ", request.host
+    print "Huuust: ", port
     if request.method == 'GET':
         return render_template('show_files.html', blobs=db_session.query(Blob).order_by(Blob.id))
     elif request.method == 'POST':
