@@ -36,7 +36,11 @@ def manager():
         port = request.form['port']
         if is_valid_port(port):
             n = Node(ip,port)
+            print "katt1 ", port
+            port_striped = port.strip()
+            print "katts ", port_striped
             n.process_id = run_server_on_container("websync", port)
+            print "katt2"
             db_session.add(n)
             db_session.commit()
             flash('Node created kinda.')
@@ -106,7 +110,7 @@ def is_valid_ip(ip):
 
 def is_valid_port(port):
     if not is_unique_port(port):
-        return false
+        return False
     try:
         port_int = int(port)
         if ((port_int < 65536) and (port_int>0)):
@@ -117,10 +121,8 @@ def is_valid_port(port):
         return False
 
 def is_unique_port(port):
+    #nodes=db_session.query(Node).order_by(Node.id)
+    #for node in nodes:
+    #    if (port == node.port):
+    #        return False
     return True
-#def is_unique_port(port):
-#    nodes=db_session.query(Node).order_by(Node.id)
-#    for node in nodes:
-#        if node.port == port:
-#            return False
-#    return True
