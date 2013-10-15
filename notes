@@ -5,7 +5,7 @@ Password: ur0SYV5SPlie
 130.240.233.81 <-- open stack server
 
 
-docker run -i -t base /bin/bash  //ssh into docker container
+sudo docker run -i -t base /bin/bash  //ssh into docker container
 
 Dockerfile
 
