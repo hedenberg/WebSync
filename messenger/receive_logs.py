@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-import pika
+import pika, sys
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(
         host='130.240.110.14'))
 channel = connection.channel()
 
-exchange_name=sys.argv[1:]
+exchange_name=sys.argv[1]
 
 channel.exchange_declare(exchange=exchange_name,
                          type='fanout')

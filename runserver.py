@@ -2,7 +2,6 @@ from websync import app
 import sys
 app.debug = True
 app.secret_key = 'super secret developmentkey, not at all posted on github.'
-
 port = 80
 if app.debug:
 	try:
