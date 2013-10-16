@@ -1,6 +1,6 @@
 import os
 import sys
-from websync import app, port
+from websync import app
 import datetime
 import flask
 from flask import redirect, request, url_for, render_template, make_response, flash
@@ -9,11 +9,15 @@ from websync.database import db_session
 from websync.models import Blob
 from websync.rabbit_emit import emit_log
 
+node_port = 0
+node_ip = 0
+node_id = 0
+
 # Removes database session at shutdown
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db_session.remove()
-    connection.close()
+    #connection.close()
 
 # Fix for custom HTTP methods
 # http://flask.pocoo.org/snippets/1/
@@ -28,8 +32,9 @@ def before_request():
 
 @app.route('/blob', methods=['GET', 'POST'])
 def blob():
-    print "Hooost: ", request.host
-    print "Huuust: ", port
+    print "Port: ", node_port
+    print "IP: ", node_ip
+    print "ID: ", node_id
     if request.method == 'GET':
         return render_template('show_files.html', blobs=db_session.query(Blob).order_by(Blob.id))
     elif request.method == 'POST':
