@@ -29,7 +29,7 @@ def rec_manager(): #Nodes receieves messages from Manager
     def callback(ch, method, properties, body):
         print " [rec_manager] %r \n" % (body,)
         body_dict = json.loads(body)
-        print "test \n"
+        emit_update("test")
         if not views.node_id == body_dict["node_id"]:
 
             #http://130.240.111.132:8001/blob/1/download
@@ -46,6 +46,7 @@ def rec_manager(): #Nodes receieves messages from Manager
             b.id = body_dict["file_id"]
             b.last_change = body_dict["file_last_update"]
             b.upload_date = body_dict["file_previous_update"]
+            
 
     manager_channel.basic_consume(callback,
                                   queue=queue_name,
