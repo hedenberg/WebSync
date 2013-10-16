@@ -30,7 +30,7 @@ def rec_manager(): #Nodes receieves messages from Manager
         print " [rec_manager] %r \n" % (body,)
         body_dict = json.loads(body)
         if not views.node_id == body_dict["node_id"]:
-            print "Inside if not"
+            emit_update("test")
             #http://130.240.111.132:8001/blob/1/download
             f = urllib2.urlopen("http://%s:%d/blob/%d/download" % body_dict["node_ip"], 
                                                                   body_dict["node_port"],
