@@ -7,7 +7,7 @@ from flask import redirect, request, url_for, render_template, make_response, fl
 from werkzeug import secure_filename
 from websync.database import db_session
 from websync.models import Blob
-from websync.rabbit_emit import emit_log
+from websync import rabbit_combined
 
 node_port = 0
 node_ip = 0
@@ -107,3 +107,7 @@ def dowload_blob(blob_id):
         response.data = blob.lob
         return response
 
+
+def update_receive(msg):
+
+def manager_emit():
