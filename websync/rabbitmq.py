@@ -29,7 +29,7 @@ def rec_manager(): #Nodes receieves messages from Manager
     def callback(ch, method, properties, body):
         print " [rec_manager] %r \n" % (body,)
         body_dict = json.loads(body)
-        emit_update("test")
+        print "test \n"
         if not views.node_id == body_dict["node_id"]:
 
             #http://130.240.111.132:8001/blob/1/download
