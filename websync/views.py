@@ -3,7 +3,7 @@ import sys
 from websync import app
 import datetime
 import flask
-from flask import redirect, request, url_for, render_template, make_response, flash
+from flask import redirect, request, url_for, render_template, make_response, flash, jsonify
 from werkzeug import secure_filename
 from websync.database import db_session
 from websync.models import Blob
@@ -49,7 +49,12 @@ def blob():
         db_session.add(b)
         db_session.commit()
         flash('File upload successful.')
-        rabbitmq.emit_update("New File Uploaded")
+        rabbitmq.emit_update(jsonify(node_id=node_id,
+                                     node_ip=node_ip,
+                                     node_port=node_port, 
+                                     file_id=file_id, 
+                                     file_previous_update=file_previous_update, 
+                                     file_last_update=file_last_update))
         return redirect(url_for('blob'))
 
 # Right as diverse pathes leden the folk the righte wey to Rome.
@@ -71,6 +76,7 @@ def show_blob(blob_id):
         fn = blob.filename
         f = request.files['blob']
         fn_new = secure_filename(f.filename)
+
         if not fn == fn_new:
             flash('File name not the same')
             return render_template('show_file.html', node_port=node_port, node_ip=node_ip, node_id=node_id, blob=blob)
@@ -109,6 +115,14 @@ def dowload_blob(blob_id):
         response.data = blob.lob
         return response
 
+
+def build_json(node_id, node_ip, node_port, file_id, file_previous_update, file_last_update):
+    return jsonify(node_id=node_id,
+           node_ip=node_ip,
+           node_port=node_port, 
+           file_id=file_id, 
+           file_previous_update=file_previous_update, 
+           file_last_update=file_last_update)
 
 #def update_receive(msg):
     #..
