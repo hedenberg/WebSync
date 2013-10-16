@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import pika
 import sys
-from manager.views import update_receive
+from websync.views import update_receive
 
 exchange_emit ="Manager" #app.port
 connection_emit = pika.BlockingConnection(pika.ConnectionParameters(
