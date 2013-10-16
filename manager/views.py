@@ -6,6 +6,7 @@ from flask import redirect, request, url_for, render_template, make_response, fl
 from werkzeug import secure_filename
 from manager.database import db_session
 from manager.models import Node
+from websync import rabbit_combined
 
 # Removes database session at shutdown
 @app.teardown_appcontext
@@ -123,3 +124,5 @@ def is_unique_port(port):
     #    if (port == node.port):
     #        return False
     return True
+
+def manager_receive(msg):
