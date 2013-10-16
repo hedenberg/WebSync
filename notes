@@ -16,3 +16,6 @@ sudo docker run -d -p :5000 websync python /WebSync-master/runserver.py
 sudo docker ps
 sudo docker logs <id>
 curl -i localhost:5000/blob
+
+--docker is the sheit lol.. -
+sudo docker ps -a | awk '{print $1}' | xargs sudo docker rm

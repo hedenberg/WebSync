@@ -49,12 +49,13 @@ def blob():
         db_session.add(b)
         db_session.commit()
         flash('File upload successful.')
-        rabbitmq.emit_update(json.dumps(node_id=node_id,
-                                        node_ip=node_ip,
-                                        node_port=node_port, 
-                                        file_id=b.id, 
-                                        file_previous_update=b.upload_date,
-                                        file_last_update=b.last_change))
+        data = {node_id:node_id,
+                node_ip:node_ip,
+                node_port:node_port, 
+                file_id:b.id, 
+                file_previous_update:b.upload_date,
+                file_last_update:b.last_change}
+        rabbitmq.emit_update(json.dumps(data))
         return redirect(url_for('blob'))
 
 # Right as diverse pathes leden the folk the righte wey to Rome.
