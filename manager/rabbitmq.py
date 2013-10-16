@@ -25,7 +25,7 @@ def emit_manager(txt):  #Manager sends messages to nodes
     manager_channel.basic_publish(exchange=manager_exchange,
                                routing_key='',
                                body=txt)
-    print " [x] Sent %r" % (txt,)
+    print " [emit_manager] Sent %r" % (txt,)
 
 
 ##*********************** Nodes -> Manager ******************************
@@ -41,7 +41,7 @@ def rec_update():  #Manager receives messages from Nodes
     def callback(ch, method, properties, body):
         #manager_receive(body)
         emit_manager(body)
-        print " [x] %r" % (body,)
+        print " [rec_update] %r" % (body,)
 
     update_channel.basic_consume(callback,
                               queue=queue_name,
