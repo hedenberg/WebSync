@@ -36,7 +36,7 @@ def blob():
     print "IP: ", node_ip
     print "ID: ", node_id
     if request.method == 'GET':
-        return render_template('show_files.html', blobs=db_session.query(Blob).order_by(Blob.id))
+        return render_template('show_files.html', node_port=node_port, node_ip=node_ip, node_id=node_id, blobs=db_session.query(Blob).order_by(Blob.id))
     elif request.method == 'POST':
         # Adding a new file
         f = request.files['blob']
@@ -63,7 +63,7 @@ def blob_redirect():
 def show_blob(blob_id):
     blob=db_session.query(Blob).get(blob_id)
     if request.method == 'GET':
-        return render_template('show_file.html', blob=blob)
+        return render_template('show_file.html', node_port=node_port, node_ip=node_ip, node_id=node_id, blob=blob)
     elif request.method == 'PUT':
         # Adding a new file
         fn = blob.filename
@@ -71,7 +71,7 @@ def show_blob(blob_id):
         fn_new = secure_filename(f.filename)
         if not fn == fn_new:
             flash('File name not the same')
-            return render_template('show_file.html', blob=blob)
+            return render_template('show_file.html', node_port=node_port, node_ip=node_ip, node_id=node_id, blob=blob)
         else:
             # Adds information about the file in the database
             f_size = sys.getsizeof(f) 
@@ -80,7 +80,7 @@ def show_blob(blob_id):
             blob.lob = f_blob
             blob.file_size = f_size
             flash('File update successful.')
-            return render_template('show_file.html', blob=blob)
+            return render_template('show_file.html', node_port=node_port, node_ip=node_ip, node_id=node_id, blob=blob)
     elif request.method == 'DELETE':
         db_session.delete(blob)
         db_session.commit()
@@ -89,7 +89,7 @@ def show_blob(blob_id):
     elif request.method == 'POST':
         # This should totally never ever happen.. but it needs to support it, don't judge.
         flash('I think I broke something, call my mummy..')
-        return render_template('show_file.html', blob=db_session.query(Blob).get(blob_id))
+        return render_template('show_file.html', node_port=node_port, node_ip=node_ip, node_id=node_id, blob=db_session.query(Blob).get(blob_id))
 
 @app.route('/blob/<int:blob_id>/download', methods=['GET'])
 def dowload_blob(blob_id):
@@ -108,6 +108,8 @@ def dowload_blob(blob_id):
         return response
 
 
-def update_receive(msg):
+#def update_receive(msg):
+    #..
 
-def manager_emit():
+#def manager_emit():
+    #..
