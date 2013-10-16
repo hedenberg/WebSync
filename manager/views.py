@@ -36,9 +36,11 @@ def manager():
         port = request.form['port']
         if is_valid_port(port):
             n = Node(ip,port)
+            db_session.add(n)
+            db_session.commit()
+            print n.id
             n.process_id = run_server_on_container("websync", port, ip, n.id)
             print "Hundar: ", n.process_id
-            db_session.add(n)
             db_session.commit()
             flash('Node created kinda.')
         return redirect(url_for('manager'))
@@ -70,8 +72,9 @@ def create_docker_image(id):
     subprocess.call(["sudo","docker","build","-t",name,"."])
     return name
 
-def run_server_on_container(image, port, ip, id):
-    return subprocess.check_output(["sudo", "docker", "run", "-d", "-p", ":"+str(port), image, "python", "/WebSync-master/runserver.py", str(port), str(ip), str(id)])
+def run_server_on_container(image, port, ip, node_id):
+    print ["sudo", "docker", "run", "-d", "-p", ":"+str(port), image, "python", "/WebSync-master/runserver.py", str(port), str(ip), str(node_id)]
+    return subprocess.check_output(["sudo", "docker", "run", "-d", "-p", ":"+str(port), image, "python", "/WebSync-master/runserver.py", str(port), str(ip), str(node_id)])
 
 def stop_docker_process(process_id):
     proc_id = process_id.strip()
