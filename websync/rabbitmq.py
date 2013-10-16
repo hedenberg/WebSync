@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import pika
 import sys
-#from websync.views import update_receive
+import websync.views
 
 manager_exchange ="Manager" #app.port
 manager_connection = pika.BlockingConnection(pika.ConnectionParameters(host='130.240.110.14'))
@@ -26,6 +26,7 @@ def rec_manager(): #Nodes receieves messages from Manager
     print ' [*] Waiting for logs. To exit press CTRL+C'
     def callback(ch, method, properties, body):
         print " [x] %r" % (body,)
+        emit_update("Det fungerade")
 
     manager_channel.basic_consume(callback,
                                   queue=queue_name,

@@ -1,6 +1,6 @@
 from websync import app
-from websync import views
-import sys
+from websync import views, rabbitmq
+import sys, threading
 app.debug = True
 app.secret_key = 'super secret developmentkey, not at all posted on github.'
 port = 80
@@ -20,4 +20,11 @@ if app.debug:
 views.node_port = port
 views.node_ip = node_ip
 views.node_id = node_id
+try:
+    file_sync_thread=threading.Thread(target=rabbitmq.rec_manager)
+                                      #args=(sys.argv[2],))
+    file_sync_thread.setDaemon(True)
+    file_sync_thread.start()
+except (KeyboardInterrupt, SystemExit):
+    print 'Stopped thread'
 app.run(host = '0.0.0.0', port=port, use_reloader=False)

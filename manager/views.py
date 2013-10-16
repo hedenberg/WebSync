@@ -48,6 +48,7 @@ def manager():
 
 @app.route('/node/<int:node_id>', methods=['GET', 'DELETE', 'POST'])
 def show_node(node_id):
+    rabbitmq.emit_manager("Andreas ser ut som en katt.")
     node=db_session.query(Node).get(node_id)
     if request.method == 'GET':
         return render_template('show_node.html', node=node)

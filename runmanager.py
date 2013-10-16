@@ -16,4 +16,4 @@ try:
     file_sync_thread.start()
 except (KeyboardInterrupt, SystemExit):
     print 'Stopped thread'
-app.run(host = '0.0.0.0', port=port)
+app.run(host = '0.0.0.0', port=port, use_reloader=False)
