@@ -3,7 +3,7 @@ import sys
 from websync import app
 import datetime
 import flask
-from flask import redirect, request, url_for, render_template, make_response, flash, jsonify
+from flask import redirect, request, url_for, render_template, make_response, flash, json
 from werkzeug import secure_filename
 from websync.database import db_session
 from websync.models import Blob
@@ -49,12 +49,12 @@ def blob():
         db_session.add(b)
         db_session.commit()
         flash('File upload successful.')
-        rabbitmq.emit_update(jsonify(node_id=node_id,
-                                     node_ip=node_ip,
-                                     node_port=node_port, 
-                                     file_id=file_id, 
-                                     file_previous_update=file_previous_update, 
-                                     file_last_update=file_last_update))
+        rabbitmq.emit_update(json.dumps(node_id=node_id,
+                                        node_ip=node_ip,
+                                        node_port=node_port, 
+                                        file_id=b.id, 
+                                        file_previous_update=b.upload_date,
+                                        file_last_update=b.last_change))
         return redirect(url_for('blob'))
 
 # Right as diverse pathes leden the folk the righte wey to Rome.
@@ -84,6 +84,7 @@ def show_blob(blob_id):
             # Adds information about the file in the database
             f_size = sys.getsizeof(f) 
             f_blob = f.read()
+            blob.upload_date = blob.last_change
             blob.last_change = datetime.datetime.now()
             blob.lob = f_blob
             blob.file_size = f_size
@@ -114,18 +115,3 @@ def dowload_blob(blob_id):
         response.headers['Content-Length'] = blob.file_size
         response.data = blob.lob
         return response
-
-
-def build_json(node_id, node_ip, node_port, file_id, file_previous_update, file_last_update):
-    return jsonify(node_id=node_id,
-           node_ip=node_ip,
-           node_port=node_port, 
-           file_id=file_id, 
-           file_previous_update=file_previous_update, 
-           file_last_update=file_last_update)
-
-#def update_receive(msg):
-    #..
-
-#def manager_emit():
-    #..

@@ -40,6 +40,7 @@ def rec_update():  #Manager receives messages from Nodes
     #print ' [*] Waiting for logs. To exit press CTRL+C'
     def callback(ch, method, properties, body):
         #manager_receive(body)
+        emit_manager(body)
         print " [x] %r" % (body,)
 
     update_channel.basic_consume(callback,

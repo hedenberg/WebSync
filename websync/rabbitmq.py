@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+from flask import json
 import pika
-import sys
+import sys, urllib2
 import websync.views
+from websync.database import db_session
 
 manager_exchange ="Manager" #app.port
 manager_connection = pika.BlockingConnection(pika.ConnectionParameters(host='130.240.110.14'))
@@ -26,7 +28,22 @@ def rec_manager(): #Nodes receieves messages from Manager
     print ' [*] Waiting for logs. To exit press CTRL+C'
     def callback(ch, method, properties, body):
         print " [x] %r" % (body,)
-        emit_update("Det fungerade")
+        body_dict = json.loads(body)
+        if not views.node_id == body_dict["node_id"]:
+            #http://130.240.111.132:8001/blob/1/download
+            f = urllib2.urlopen("http://%s:%d/blob/%d/download" % body_dict["node_ip"], 
+                                                                  body_dict["node_port"],
+                                                                  body_dict["file_id"])
+            #f = request.read()
+            fn = secure_filename(f.filename)
+            f_size = sys.getsizeof(f) 
+            f_blob = f.read()
+            b = Blob(fn,f_blob, f_size)
+            db_session.add(b)
+            db_session.commit()
+            b.id = body_dict["file_id"]
+            b.last_change = body_dict["file_last_update"]
+            b.upload_date = body_dict["file_previous_update"]
 
     manager_channel.basic_consume(callback,
                                   queue=queue_name,
