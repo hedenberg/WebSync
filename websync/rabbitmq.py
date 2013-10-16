@@ -27,7 +27,7 @@ def rec_manager(): #Nodes receieves messages from Manager
                                queue=queue_name)
     print ' [*] Waiting for logs. To exit press CTRL+C'
     def callback(ch, method, properties, body):
-        print " [rec_manager] %r" % (body,)
+        print " [rec_manager] %r \n" % (body,)
         body_dict = json.loads(body)
         if not views.node_id == body_dict["node_id"]:
             #http://130.240.111.132:8001/blob/1/download
@@ -59,4 +59,4 @@ def emit_update(txt):  #Nodes sends messages to Manager
     update_channel.basic_publish(exchange=update_exchange,
                                  routing_key='',
                                  body=txt)
-    print " [update_emit] Sent %r" % (txt,)
+    print " [update_emit] Sent %r \n " % (txt,)
