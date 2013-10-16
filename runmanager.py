@@ -2,7 +2,7 @@ from manager import app
 import sys
 app.debug = True
 app.secret_key = 'super secret developmentkey, not at all posted on github.'
-#Andreas är sämst i halva världen.
+#Andreas är sämst i halva världen men bäst i den andra.
 port = 80
 if app.debug:
 	try:
