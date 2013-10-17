@@ -55,7 +55,7 @@ def emit_update(txt):  #Nodes sends messages to Manager
                                  body=txt)
     print " [update_emit] Sent %r \n " % (txt,)
 
-def add_blob(dict):
+def add_blob(body_dict):
     response = urllib2.urlopen("http://%s:%d/blob/%d/download" % (body_dict["node_ip"], body_dict["node_port"], body_dict["file_id"]))
     _, params = cgi.parse_header(response.headers.get('Content-Disposition', ''))
     fn = params['filename']
@@ -70,7 +70,7 @@ def add_blob(dict):
     b.upload_date = datetime.strptime(body_dict["file_previous_update"], date_format)
     db_session.commit()
 
-def update_blob(dict):
+def update_blob(body_dict):
     response = urllib2.urlopen("http://%s:%d/blob/%d/download" % (body_dict["node_ip"], body_dict["node_port"], body_dict["file_id"]))
     _, params = cgi.parse_header(response.headers.get('Content-Disposition', ''))
     fn = params['filename']
@@ -91,7 +91,7 @@ def update_blob(dict):
     b.upload_date = datetime.strptime(body_dict["file_previous_update"], date_format)
     db_session.commit()
 
-def delete_blob(dict):
+def delete_blob(body_dict):
     b=db_session.query(Blob).get(body_dict["file_id"])
     if not b == None:
         db_session.delete(b)
