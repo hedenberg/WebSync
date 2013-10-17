@@ -48,7 +48,7 @@ def blob():
         db_session.add(b)
         db_session.commit()
         flash('File upload successful.')
-        data = {"message_id":uuid.getnode(),
+        data = {"message_id":(uuid.uuid4().int & (1<<96)-1),
                 "node_id":node_id,
                 "node_ip":node_ip,
                 "node_port":node_port, 
@@ -90,7 +90,7 @@ def show_blob(blob_id):
             b.last_change = datetime.datetime.now()
             b.lob = f_blob
             b.file_size = f_size
-            data = {"message_id":uuid.getnode(),
+            data = {"message_id":(uuid.uuid4().int & (1<<96)-1),
                     "node_id":node_id,
                     "node_ip":node_ip,
                     "node_port":node_port, 
