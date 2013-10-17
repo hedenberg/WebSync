@@ -19,6 +19,7 @@ update_channel = update_connection.channel()
 update_channel.exchange_declare(exchange=update_exchange,
                                 type='fanout')
 
+last_message_id = -1
 
 ##***************** Manager -> Nodes *************************
 
@@ -29,11 +30,13 @@ def rec_manager(node_id): #Nodes receieves messages from Manager
                                queue=queue_name)
     print ' [*] Waiting for logs. To exit press CTRL+C'
     def callback(ch, method, properties, body):
+        global last_message_id
         print " [rec_manager] %r \n" % (body,)
         body_dict = json.loads(body)
         #emit_update("test")
-        if not node_id == body_dict["node_id"]:
+        if not (last_message_id == body_dict["message_id"]) and not (node_id == body_dict["node_id"]):
             #http://130.240.111.132:8001/blob/1/download
+            last_message_id = body_dict["message_id"]
             response = urllib2.urlopen("http://%s:%d/blob/%d/download" % (body_dict["node_ip"], body_dict["node_port"], body_dict["file_id"]))
             #f = request.read()
             _, params = cgi.parse_header(response.headers.get('Content-Disposition', ''))

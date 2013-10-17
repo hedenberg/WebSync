@@ -1,5 +1,4 @@
-import os
-import sys
+import os, uuid, sys
 from websync import app
 import datetime
 import flask
@@ -49,7 +48,8 @@ def blob():
         db_session.add(b)
         db_session.commit()
         flash('File upload successful.')
-        data = {"node_id":node_id,
+        data = {"message_id":uuid.getnode(),
+                "node_id":node_id,
                 "node_ip":node_ip,
                 "node_port":node_port, 
                 "file_id":b.id, 
