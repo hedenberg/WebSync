@@ -38,15 +38,20 @@ def rec_manager(node_id): #Nodes receieves messages from Manager
             #http://130.240.111.132:8001/blob/1/download
             last_message_id = body_dict["message_id"]
             response = urllib2.urlopen("http://%s:%d/blob/%d/download" % (body_dict["node_ip"], body_dict["node_port"], body_dict["file_id"]))
-            #f = request.read()
             _, params = cgi.parse_header(response.headers.get('Content-Disposition', ''))
             fn = params['filename']
             f_size = sys.getsizeof(response) 
             f_blob = response.read()
-            b = Blob(fn,f_blob, f_size)
-            db_session.add(b)
-            db_session.commit()
-            #b.id = body_dict["file_id"]
+            
+            b=db_session.query(Blob).get(body_dict["file_id"])
+            if b == None:
+                b = Blob(fn,f_blob, f_size)
+                db_session.add(b)
+                db_session.commit()
+                b.id = body_dict["file_id"]
+            else:
+                b.lob = f_blob
+                b.filesize = f_size
             print "last: ", body_dict["file_last_update"]
             print "prev: ", body_dict["file_previous_update"] #2013-10-17 08:30:25.142629
             b.last_change = datetime.strptime(body_dict["file_last_update"], '%Y-%m-%d %H:%M:%S.%f')

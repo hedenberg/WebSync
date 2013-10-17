@@ -53,8 +53,9 @@ def blob():
                 "node_ip":node_ip,
                 "node_port":node_port, 
                 "file_id":b.id, 
-                "file_previous_update":str(b.upload_date),
-                "file_last_update":str(b.last_change)}
+                "upload_date":str(b.upload_date),
+                "file_last_update":str(b.last_change),
+                "file_previous_update":str(b.second_last_change)}
         rabbitmq.emit_update(json.dumps(data))
         return redirect(url_for('blob'))
 
@@ -69,30 +70,39 @@ def blob_redirect():
 
 @app.route('/blob/<int:blob_id>', methods=['GET', 'PUT', 'DELETE', 'POST'])
 def show_blob(blob_id):
-    blob=db_session.query(Blob).get(blob_id)
+    b=db_session.query(Blob).get(blob_id)
     if request.method == 'GET':
-        return render_template('show_file.html', node_port=node_port, node_ip=node_ip, node_id=node_id, blob=blob)
+        return render_template('show_file.html', node_port=node_port, node_ip=node_ip, node_id=node_id, blob=b)
     elif request.method == 'PUT':
         # Adding a new file
-        fn = blob.filename
+        fn = b.filename
         f = request.files['blob']
         fn_new = secure_filename(f.filename)
 
         if not fn == fn_new:
             flash('File name not the same')
-            return render_template('show_file.html', node_port=node_port, node_ip=node_ip, node_id=node_id, blob=blob)
+            return render_template('show_file.html', node_port=node_port, node_ip=node_ip, node_id=node_id, blob=b)
         else:
             # Adds information about the file in the database
             f_size = sys.getsizeof(f) 
             f_blob = f.read()
-            blob.upload_date = blob.last_change
-            blob.last_change = datetime.datetime.now()
-            blob.lob = f_blob
-            blob.file_size = f_size
+            b.upload_date = b.last_change
+            b.last_change = datetime.datetime.now()
+            b.lob = f_blob
+            b.file_size = f_size
+            data = {"message_id":uuid.getnode(),
+                    "node_id":node_id,
+                    "node_ip":node_ip,
+                    "node_port":node_port, 
+                    "file_id":b.id, 
+                    "upload_date":str(b.upload_date),
+                    "file_last_update":str(b.last_change),
+                    "file_previous_update":str(b.second_last_change)}
+            rabbitmq.emit_update(json.dumps(data))
             flash('File update successful.')
-            return render_template('show_file.html', node_port=node_port, node_ip=node_ip, node_id=node_id, blob=blob)
+            return render_template('show_file.html', node_port=node_port, node_ip=node_ip, node_id=node_id, blob=b)
     elif request.method == 'DELETE':
-        db_session.delete(blob)
+        db_session.delete(b)
         db_session.commit()
         flash('File is removed.')
         return redirect(url_for('blob'))
