@@ -49,6 +49,7 @@ def blob():
         db_session.commit()
         flash('File upload successful.')
         data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
+                "type":"POST",
                 "node_id":node_id,
                 "node_ip":node_ip,
                 "node_port":node_port, 
@@ -92,6 +93,7 @@ def show_blob(blob_id):
             b.file_size = f_size
             db_session.commit()
             data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
+                    "type":"PUT",
                     "node_id":node_id,
                     "node_ip":node_ip,
                     "node_port":node_port, 
@@ -105,6 +107,16 @@ def show_blob(blob_id):
     elif request.method == 'DELETE':
         db_session.delete(b)
         db_session.commit()
+        data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
+                "type":"DELETE",
+                "node_id":node_id,
+                "node_ip":node_ip,
+                "node_port":node_port, 
+                "file_id":b.id, 
+                "upload_date":str(b.upload_date),
+                "file_last_update":str(b.last_change),
+                "file_previous_update":str(b.second_last_change)}
+        rabbitmq.emit_update(json.dumps(data))
         flash('File is removed.')
         return redirect(url_for('blob'))
     elif request.method == 'POST':
