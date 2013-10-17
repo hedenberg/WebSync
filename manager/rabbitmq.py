@@ -39,13 +39,9 @@ def rec_update():  #Manager receives messages from Nodes
 
     #print ' [*] Waiting for logs. To exit press CTRL+C'
     def callback(ch, method, properties, body):
-        #manager_receive(body)
-        if body=="test":
-          print "test funkar \n"
-        else:
-          emit_manager(body)
-          print " [rec_update] %r  \n" % (body,)
-
+        print " [rec_update] %r  \n" % (body,)
+        emit_manager(body)
+    
     update_channel.basic_consume(callback,
                               queue=queue_name,
                               no_ack=True)

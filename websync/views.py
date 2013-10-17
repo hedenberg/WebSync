@@ -53,8 +53,8 @@ def blob():
                 "node_ip":node_ip,
                 "node_port":node_port, 
                 "file_id":b.id, 
-                "file_previous_update":b.upload_date,
-                "file_last_update":b.last_change}
+                "file_previous_update":str(b.upload_date),
+                "file_last_update":str(b.last_change)}
         rabbitmq.emit_update(json.dumps(data))
         return redirect(url_for('blob'))
 
