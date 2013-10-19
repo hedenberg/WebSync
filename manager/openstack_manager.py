@@ -1,5 +1,6 @@
 import boto, os, sys
 import boto.ec2
+import time
 #import config
 
 COREOS_IMAGE = "ami-00000003"
@@ -22,14 +23,14 @@ def add_instance():
         response = boto_connection.run_instances(
             #image_id="56eed2c2-40b6-4a52-bd55-823457f0ee66",
             COREOS_IMAGE, 
-            key_name="web_sync", 
+            key_name="web_sync2", 
             instance_type="m1.tiny", 
             security_groups=["default"]
             #min_count=instances_count,
             #max_count=instances_count
         )
 
-        for instance in response.instances:                    #waiting for the instance to ge an ip
+        for instance in response.instances:                         #waiting for the instance to ge an ip
             while instance.private_ip_address == "":
                 instance.update()
         return response.instances
@@ -39,4 +40,28 @@ def add_instance():
     except Exception as e:
         raise e
         #print "Exception when creating node: "+ str(e) 
+
+
+def remove_instance(instances,addr):                                #removes the instance provided
+    ip = (str(addr).split(":"))[1]
+    if (boto_connection.disassociate_address(ip)):
+        boto_connection.terminate_instances(instances)
+        boto_connection.release_address(ip)
+        return "vm at "+ ip +" removed"
+    #boto_connection.terminate_instances(instances)
+    #time.sleep(1)                                                    #sleep because instance needs to be terminated before ip is removed
+    #ip = (str(addr).split(":"))[1]
+    #boto_connection.release_address(ip)
+    return "something went wrong when removing vm.. :<"
+
+def get_floating():
+    return boto_connection.allocate_address()
+
+
+def assign_floating(instance, addr):
+    i=instance[0]                                                   #convert from list ti string
+    ip = (str(addr).split(":"))[1]
+    boto_connection.associate_address(i,ip)
+    return "new vm ready at "+ip
+
 
