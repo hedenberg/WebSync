@@ -12,6 +12,10 @@ node_port = 0
 node_ip = 0
 node_id = 0
 
+@app.before_first_request
+def start_sync():
+    rabbitmq.request_sync(node_id, node_ip, node_port)
+
 # Removes database session at shutdown
 @app.teardown_appcontext
 def shutdown_session(exception=None):
@@ -139,7 +143,3 @@ def dowload_blob(blob_id):
         response.headers['Content-Length'] = blob.file_size
         response.data = blob.lob
         return response
-
-def start_sync():
-    print "before first request"
-    rabbitmq.request_sync(node_id, node_ip, node_port)

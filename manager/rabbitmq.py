@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from flask import json
 import pika
-import sys, uuid
+import sys, uuid, time
 from datetime import datetime
 from manager.models import Node, Blob
 from manager.database import db_session
@@ -57,28 +57,33 @@ def handle_body(body):
         delete_blob(body_dict)
         emit_manager(body)
     elif body_dict["type"] == "SYNC":
-        sync_blobs()
+        sync_blobs(body_dict)
     
 
-def sync_blobs():
-    print "syncing"
+def sync_blobs(body_dict):
+    #print "syncing"
+    #time.sleep(1)
     nodes=db_session.query(Node).order_by(Node.id)
-    source_node = nodes[0]
+    sync_node = db_session.query(Node).get(body_dict["node_id"])
+    source_node = sync_node
     for node in nodes:
-        if not node.id == 1:
+        if not node.id == source_node.id:
             source_node = node
-    blobs=db_session.query(Blob).order_by(Blob.id)
-    for b in blobs:
-        data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
-                "type":"POST",
-                "node_id":source_node.id,
-                "node_ip":source_node.ip,
-                "node_port":source_node.port, 
-                "file_id":b.id, 
-                "upload_date":str(b.upload_date),
-                "file_last_update":str(b.last_change),
-                "file_previous_update":str(b.second_last_change)}
-        emit_manager(json.dumps(data))
+            break
+
+    if not source_node == sync_node:
+        blobs=db_session.query(Blob).order_by(Blob.id)
+        for b in blobs:
+            data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
+                    "type":"POST",
+                    "node_id":source_node.id,
+                    "node_ip":source_node.ip,
+                    "node_port":source_node.port, 
+                    "file_id":b.id, 
+                    "upload_date":str(b.upload_date),
+                    "file_last_update":str(b.last_change),
+                    "file_previous_update":str(b.second_last_change)}
+            emit_manager(json.dumps(data))
 
 def add_blob(body_dict):
     date_format = '%Y-%m-%d %H:%M:%S.%f'
@@ -89,6 +94,9 @@ def add_blob(body_dict):
     db_session.add(b)
     db_session.commit()
     b.id = body_dict["file_id"]
+    b.upload_date = b0
+    b.last_change = b1
+    b.second_last_change = b2
     db_session.commit()
 
 def update_blob(body_dict):
@@ -103,9 +111,13 @@ def update_blob(body_dict):
         db_session.add(b)
         db_session.commit()
         b.id = body_dict["file_id"]
+        b.upload_date = b0
+        b.last_change = b1
+        b.second_last_change = b2
         db_session.commit()
     else:
         date_format = '%Y-%m-%d %H:%M:%S.%f'
+        b.upload_date = b0
         b.last_change = b1
         b.second_last_change = b2
         db_session.commit()
