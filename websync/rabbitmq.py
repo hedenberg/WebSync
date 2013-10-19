@@ -58,7 +58,7 @@ def emit_update(txt):  #Nodes sends messages to Manager
 
 def request_sync():
     data = {"message_id":(uuid.uuid4().int & (1<<63)-1), "type":"SYNC"}
-    rabbitmq.emit_update(json.dumps(data))
+    emit_update(json.dumps(data))
 
 def add_blob(body_dict):
     response = urllib2.urlopen("http://%s:%d/blob/%d/download" % (body_dict["node_ip"], body_dict["node_port"], body_dict["file_id"]))
