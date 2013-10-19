@@ -54,6 +54,8 @@ def handle_body(body):
         update_blob(body_dict)
     elif body_dict["type"] == "DELETE":
         delete_blob(body_dict)
+    elif body_dict["type"] == "SYNC":
+        print "Nu ar det sluut"
 
 def add_blob(body_dict):
     date_format = '%Y-%m-%d %H:%M:%S.%f'

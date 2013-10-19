@@ -3,7 +3,7 @@ from flask import json
 from werkzeug import secure_filename
 from datetime import datetime
 import pika
-import sys, urllib2, cgi
+import sys, urllib2, cgi, uuid
 from websync.database import db_session
 from websync.models import Blob
 
