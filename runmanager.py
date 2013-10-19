@@ -11,7 +11,6 @@ if app.debug:
         port = 8000
 try:
     file_sync_thread=threading.Thread(target=rabbitmq.rec_update)
-                                      #args=(sys.argv[2],))
     file_sync_thread.setDaemon(True)
     file_sync_thread.start()
 except (KeyboardInterrupt, SystemExit):
