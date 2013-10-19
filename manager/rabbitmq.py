@@ -8,13 +8,13 @@ from manager.database import db_session
 #from manager.views import manager_receive
 
 manager_exchange ="Manager" #app.port
-manager_connection = pika.BlockingConnection(pika.ConnectionParameters(host='130.240.108.57'))
+manager_connection = pika.BlockingConnection(pika.ConnectionParameters(host='130.240.110.14'))
 manager_channel = manager_connection.channel()
 manager_channel.exchange_declare(exchange=manager_exchange,
                                  type='fanout')
 
 update_exchange ="Update" #app.port
-update_connection = pika.BlockingConnection(pika.ConnectionParameters(host='130.240.108.57'))
+update_connection = pika.BlockingConnection(pika.ConnectionParameters(host='130.240.110.14'))
 update_channel = update_connection.channel()
 update_channel.exchange_declare(exchange=update_exchange,
                                 type='fanout')
