@@ -30,7 +30,6 @@ def rec_manager(node_id): #Nodes receieves messages from Manager
     def callback(ch, method, properties, body):
         global last_message_id
         print " [rec_manager] %r \n" % (body,)
-        print " rec katt "
         body_dict = json.loads(body)
         if not (last_message_id == body_dict["message_id"]) and not (node_id == body_dict["node_id"]):
             last_message_id = body_dict["message_id"]
