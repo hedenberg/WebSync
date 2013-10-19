@@ -3,8 +3,7 @@ import pika
 
 
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(
-        host='130.240.110.14'))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='130.240.108.57', port=5672))
 channel = connection.channel()
 
 channel.queue_declare(queue='hello')
