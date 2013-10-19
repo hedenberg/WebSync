@@ -26,4 +26,5 @@ try:
     file_sync_thread.start()
 except (KeyboardInterrupt, SystemExit):
     print 'Stopped thread'
+views.start_sync()
 app.run(host = '0.0.0.0', port=port, use_reloader=False)

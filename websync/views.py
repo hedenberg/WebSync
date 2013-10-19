@@ -139,3 +139,7 @@ def dowload_blob(blob_id):
         response.headers['Content-Length'] = blob.file_size
         response.data = blob.lob
         return response
+
+def start_sync():
+    print "before first request"
+    rabbitmq.request_sync(node_id, node_ip, node_port)

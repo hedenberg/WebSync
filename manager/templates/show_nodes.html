@@ -21,8 +21,10 @@
   <ul class=entries>
     <h2>Nodes:</h2>
     {% for node in nodes %}
-      <li>ID: {{node.id}} - <a href="http://{{node.ip}}:{{node.port}}">{{node.ip}}:{{node.port}}</a> - <a href="/node/{{node.id}}">Manage</a>
-      <br>
+      <form action="/node/{{node.id}}" method="POST">
+        <input type="hidden" name="_method" value="DELETE" />
+        <li>ID: {{node.id}} - <a href="http://{{node.ip}}:{{node.port}}">{{node.ip}}:{{node.port}}</a> - <a href="/node/{{node.id}}">Info</a> - <input type="submit" value="Kill" />
+      </form>
     {% else %}
       <li><em>There are no active nodes.<em>
     {% endfor %}

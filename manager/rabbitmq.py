@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 from flask import json
 import pika
-import sys
+import sys, uuid
 from datetime import datetime
-from manager.models import Blob
+from manager.models import Node, Blob
 from manager.database import db_session
 #from manager.views import manager_receive
 
 manager_exchange ="Manager" #app.port
-manager_connection = pika.BlockingConnection(pika.ConnectionParameters(host='130.240.110.14'))
+manager_connection = pika.BlockingConnection(pika.ConnectionParameters(host='130.240.108.57'))
 manager_channel = manager_connection.channel()
 manager_channel.exchange_declare(exchange=manager_exchange,
                                  type='fanout')
 
 update_exchange ="Update" #app.port
-update_connection = pika.BlockingConnection(pika.ConnectionParameters(host='130.240.110.14'))
+update_connection = pika.BlockingConnection(pika.ConnectionParameters(host='130.240.108.57'))
 update_channel = update_connection.channel()
 update_channel.exchange_declare(exchange=update_exchange,
                                 type='fanout')
@@ -37,7 +37,6 @@ def rec_update():  #Manager receives messages from Nodes
     def callback(ch, method, properties, body):
         print " [rec_update] %r  \n" % (body,)
         handle_body(body)
-        emit_manager(body)
 
     update_channel.basic_consume(callback,
                               queue=queue_name,
@@ -50,12 +49,36 @@ def handle_body(body):
     body_dict = json.loads(body)
     if body_dict["type"] == "POST":
         add_blob(body_dict)
+        emit_manager(body)
     elif body_dict["type"] == "PUT":
         update_blob(body_dict)
+        emit_manager(body)
     elif body_dict["type"] == "DELETE":
         delete_blob(body_dict)
+        emit_manager(body)
     elif body_dict["type"] == "SYNC":
-        print "Nu ar det sluut"
+        sync_blobs()
+    
+
+def sync_blobs():
+    print "syncing"
+    nodes=db_session.query(Node).order_by(Node.id)
+    source_node = nodes[0]
+    for node in nodes:
+        if not node.id == 1:
+            source_node = node
+    blobs=db_session.query(Blob).order_by(Blob.id)
+    for b in blobs:
+        data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
+                "type":"POST",
+                "node_id":source_node.id,
+                "node_ip":source_node.ip,
+                "node_port":source_node.port, 
+                "file_id":b.id, 
+                "upload_date":str(b.upload_date),
+                "file_last_update":str(b.last_change),
+                "file_previous_update":str(b.second_last_change)}
+        emit_manager(json.dumps(data))
 
 def add_blob(body_dict):
     date_format = '%Y-%m-%d %H:%M:%S.%f'

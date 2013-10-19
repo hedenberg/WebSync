@@ -47,7 +47,6 @@ def rec_manager(node_id): #Nodes receieves messages from Manager
     manager_channel.basic_consume(callback,
                                   queue=queue_name,
                                   no_ack=True)
-    request_sync()
     manager_channel.start_consuming()
 
 def emit_update(txt):  #Nodes sends messages to Manager
@@ -56,8 +55,13 @@ def emit_update(txt):  #Nodes sends messages to Manager
                                  body=txt)
     print " [update_emit] Sent %r \n " % (txt,)
 
-def request_sync():
-    data = {"message_id":(uuid.uuid4().int & (1<<63)-1), "type":"SYNC"}
+def request_sync(node_id, node_ip, node_port):
+    print "requesting sync"
+    data = {"message_id":(uuid.uuid4().int & (1<<63)-1), 
+            "type":"SYNC",
+            "node_id":node_id,
+            "node_ip":node_ip,
+            "node_port":node_port, }
     emit_update(json.dumps(data))
 
 def add_blob(body_dict):

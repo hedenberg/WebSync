@@ -64,9 +64,6 @@ def show_node(node_id):
         flash('I think I broke something, call my mummy..')
         return render_template('show_file.html', node=node)
 
-def katt(i):
-    print "Hundar"+str(i)
-
 # Never ever ever used. 
 def create_docker_image(id):
     name = "websync"+str(id)
