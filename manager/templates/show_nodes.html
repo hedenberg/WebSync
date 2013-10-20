@@ -1,16 +1,15 @@
 {% extends "layout.html" %}
 {% block body %}
 
+<a href="/vms">Machines</a>
+
   <h2>Create new Node:</h2> 
   <form method=post enctype='multipart/form-data' action="{{ url_for('manager')}}">
     <dl>
       <!--IP-address and port (xxx.xxx.xxx.xxx:XXXX)-->
       <dd>VM - <select name="vms">
        {% for vm in vms %}
-          {%set vm_name,vm_ip = vm%}
-          <option value="{{vm_ip}}">{{vm_name}}</option>
-        {% else %}
-          <option value="10.10.10.15">LocalVagrant</option>
+          <option value="{{vm}}">{{vm}}</option>
         {% endfor %}
       </select>
       <dd>Port - <input type=text name=port placeholder="8001-8098">

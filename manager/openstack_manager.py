@@ -5,6 +5,7 @@ import time
 
 COREOS_IMAGE = "ami-00000003"
 COREOS_SNAP = "ami-0000001d"
+COREOS_CONT = "ami-0000001e"
 #COREOS_IMAGE = "56eed2c2-40b6-4a52-bd55-823457f0ee66"
 EC2_ENDPOINT = "130.240.233.106"
 EC2_ACCESS_KEY="58433a1650b14ac2a62a9ad06b9cf1c9"
@@ -24,7 +25,7 @@ def add_instance():
         response = boto_connection.run_instances(
             #image_id="56eed2c2-40b6-4a52-bd55-823457f0ee66",
             #COREOS_IMAGE, 
-            COREOS_SNAP,
+            COREOS_CONT,
             key_name="web_sync2", 
             instance_type="m1.tiny", 
             security_groups=["default"]
@@ -35,7 +36,8 @@ def add_instance():
         for instance in response.instances:                         #waiting for the instance to ge an ip
             while instance.private_ip_address == "":
                 instance.update()
-        return response.instances
+        inst = response.instances[0]
+        return inst
 
 
 
@@ -44,26 +46,24 @@ def add_instance():
         #print "Exception when creating node: "+ str(e) 
 
 
-def remove_instance(instances,addr):                                #removes the instance provided
-    ip = (str(addr).split(":"))[1]
+def remove_instance(instance,ip):                                #removes the instance provided
+    instances = [instance]
     if (boto_connection.disassociate_address(ip)):                  #disassociate ip from instance before removing to avoid errors
         boto_connection.terminate_instances(instances)
         boto_connection.release_address(ip)
-        return "vm at "+ ip +" removed"
+        #return "vm at "+ ip +" removed"
     #boto_connection.terminate_instances(instances)
     #time.sleep(1)                                                    #sleep because instance needs to be terminated before ip is removed
     #ip = (str(addr).split(":"))[1]
     #boto_connection.release_address(ip)
-    return "something went wrong when removing vm.. :<"
+    #return "something went wrong when removing vm.. :<"
 
 def get_floating():
-    return boto_connection.allocate_address()
+    addr = boto_connection.allocate_address()
+    return (str(addr).split(":"))[1]
 
 
-def assign_floating(instance, addr):
-    i=instance[0]                                                   #convert from list ti string
-    ip = (str(addr).split(":"))[1]
-    boto_connection.associate_address(i,ip)
-    return "new vm ready at "+ip
+def assign_floating(instance, ip):
+    boto_connection.associate_address(instance,ip)
 
 

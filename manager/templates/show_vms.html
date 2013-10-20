@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block body %}
+
+  <h2>Create new Instance:</h2> 
+  <form method=post enctype='multipart/form-data' action="{{ url_for('machines')}}">
+    <dl>
+      <input type=submit value="Create VM">
+    </dl>
+  </form>
+
+  <ul class=entries>
+    <h2>Instances:</h2>
+    {% for vm in vms %}
+      <form action="/vm/{{vm.id}}" method="POST">
+        <input type="hidden" name="_method" value="DELETE" />
+        <li>ID: {{vm.id}} - {{vm.ip}} - {{vm.instance}} - <input type="submit" value="Kill" />
+      </form>
+    {% else %}
+      <li><em>There are no active nodes.<em>
+    {% endfor %}
+  </ul>
+{% endblock %}
