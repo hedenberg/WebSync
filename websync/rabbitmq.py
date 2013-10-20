@@ -34,9 +34,9 @@ def rec_manager(node_id): #Nodes receieves messages from Manager
         if not (last_message_id == body_dict["message_id"]) and not (node_id == body_dict["node_id"]):
             last_message_id = body_dict["message_id"]
             if body_dict["type"] == "POST":
-                add_blob(body_dict)
+                add_update_blob(body_dict)
             elif body_dict["type"] == "PUT":
-                update_blob(body_dict)
+                add_update_blob(body_dict)
             elif body_dict["type"] == "DELETE":
                 delete_blob(body_dict)
         else:
@@ -64,22 +64,7 @@ def request_sync(node_id, node_ip, node_port):
             "node_port":node_port, }
     emit_update(json.dumps(data))
 
-def add_blob(body_dict):
-    response = urllib2.urlopen("http://%s:%d/blob/%d/download" % (body_dict["node_ip"], body_dict["node_port"], body_dict["file_id"]))
-    _, params = cgi.parse_header(response.headers.get('Content-Disposition', ''))
-    fn = params['filename']
-    f_size = sys.getsizeof(response) 
-    f_blob = response.read()
-    b = Blob(fn,f_blob, f_size)
-    db_session.add(b)
-    db_session.commit()
-    b.id = body_dict["file_id"]
-    date_format = '%Y-%m-%d %H:%M:%S.%f'
-    b.last_change = datetime.strptime(body_dict["file_last_update"], date_format)
-    b.upload_date = datetime.strptime(body_dict["file_previous_update"], date_format)
-    db_session.commit()
-
-def update_blob(body_dict):
+def add_update_blob(body_dict):
     response = urllib2.urlopen("http://%s:%d/blob/%d/download" % (body_dict["node_ip"], body_dict["node_port"], body_dict["file_id"]))
     _, params = cgi.parse_header(response.headers.get('Content-Disposition', ''))
     fn = params['filename']

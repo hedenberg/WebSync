@@ -5,7 +5,7 @@ import flask
 from flask import redirect, request, url_for, render_template, make_response, flash, json
 from werkzeug import secure_filename
 from manager.database import db_session
-from manager.models import Node
+from manager.models import Node, Blob
 from manager import rabbitmq
 
 # Removes database session at shutdown
@@ -31,7 +31,7 @@ def manager():
         ip= r.json()['ip']
         vms = [("publicvagrant",ip),("localvagrant","10.10.10.15")]
         print vms
-        return render_template('show_nodes.html', nodes=db_session.query(Node).order_by(Node.id), vms=vms)
+        return render_template('show_nodes.html', nodes=db_session.query(Node).order_by(Node.id), blobs=db_session.query(Blob).order_by(Blob.id), vms=vms)
     elif request.method == 'POST':
         ip = request.form['vms']
         port = request.form['port']
@@ -57,7 +57,15 @@ def show_node(node_id):
         print stop_docker_process(node.process_id)
         db_session.delete(node)
         db_session.commit()
-        flash('Node is removed.')
+        nodes=db_session.query(Node).all()
+        if len(nodes) == 0:
+            blobs=db_session.query(Blob).order_by(Blob.id)
+            for blob in blobs:
+                db_session.delete(blob)
+            db_session.commit()
+            flash('All nodes gone and files removed')
+        else:
+            flash('Node is removed.')
         return redirect(url_for('manager'))
     elif request.method == 'POST':
         # This should totally never ever happen.. but it needs to support it, don't judge.

@@ -19,3 +19,4 @@ curl -i localhost:5000/blob
 
 --docker is the sheit lol.. -
 sudo docker ps -a | awk '{print $1}' | xargs sudo docker rm
+sudo docker ps -a | awk '{print $1}' | xargs sudo docker stop

@@ -7,7 +7,7 @@ from manager.models import Node, Blob
 from manager.database import db_session
 #from manager.views import manager_receive
 
-manager_exchange ="Manager" #app.port
+manager_exchange ="Manager" #app.port #130.240.110.14
 manager_connection = pika.BlockingConnection(pika.ConnectionParameters(host='130.240.110.14'))
 manager_channel = manager_connection.channel()
 manager_channel.exchange_declare(exchange=manager_exchange,

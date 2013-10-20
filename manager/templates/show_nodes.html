@@ -29,4 +29,12 @@
       <li><em>There are no active nodes.<em>
     {% endfor %}
   </ul>
+  <ul class=entries>
+    <h2>Blobs:</h2>
+    {% for blob in blobs %}
+      <li>ID: {{blob.id}} - last change: {{blob.last_change}}
+    {% else %}
+      <li><em>There are no synced blobs.<em>
+    {% endfor %}
+  </ul>
 {% endblock %}
