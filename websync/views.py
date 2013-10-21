@@ -12,6 +12,8 @@ node_port = 0
 node_ip = 0
 node_id = 0
 
+online = True
+
 @app.before_first_request
 def start_sync():
     rabbitmq.request_sync(node_id, node_ip, node_port)
@@ -61,7 +63,10 @@ def blob():
                 "upload_date":str(b.upload_date),
                 "file_last_update":str(b.last_change),
                 "file_previous_update":str(b.second_last_change)}
-        rabbitmq.emit_update(json.dumps(data))
+        if(online):        
+            rabbitmq.emit_update(json.dumps(data))
+        else:
+            print "is offline"
         return redirect(url_for('blob'))
 
 # Right as diverse pathes leden the folk the righte wey to Rome.
@@ -105,7 +110,10 @@ def show_blob(blob_id):
                     "upload_date":str(b.upload_date),
                     "file_last_update":str(b.last_change),
                     "file_previous_update":str(b.second_last_change)}
-            rabbitmq.emit_update(json.dumps(data))
+            if(online):
+                rabbitmq.emit_update(json.dumps(data))
+            else:
+                print "is offline"
             flash('File update successful.')
             return render_template('show_file.html', node_port=node_port, node_ip=node_ip, node_id=node_id, blob=b)
     elif request.method == 'DELETE':
@@ -120,7 +128,10 @@ def show_blob(blob_id):
                 "upload_date":str(b.upload_date),
                 "file_last_update":str(b.last_change),
                 "file_previous_update":str(b.second_last_change)}
-        rabbitmq.emit_update(json.dumps(data))
+        if(online):
+            rabbitmq.emit_update(json.dumps(data))
+        else:
+            print "is offline"
         flash('File is removed.')
         return redirect(url_for('blob'))
     elif request.method == 'POST':
@@ -143,3 +154,11 @@ def dowload_blob(blob_id):
         response.headers['Content-Length'] = blob.file_size
         response.data = blob.lob
         return response
+
+def toggle_online():
+    if(online==True):
+        online=False
+        rabbitmq.set_online(False)
+    else:
+        online=True
+        rabbitmq.set_online(True)

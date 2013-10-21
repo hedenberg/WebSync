@@ -21,4 +21,5 @@ curl -i localhost:5000/blob
 sudo docker ps -a | awk '{print $1}' | xargs sudo docker rm
 sudo docker ps -a | awk '{print $1}' | xargs sudo docker stop
 
-hej = a.boto_connection.get_all_images() gets all images ids
+import openstack_manager as a
+hej = a.boto_connection.get_all_images() 		#when used in python terminal we get ami- values for all images
