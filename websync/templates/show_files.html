@@ -1,6 +1,16 @@
 {% extends "layout.html" %}
 {% block body %}
 
+  <form method=post enctype='multipart/form-data' action="{{ url_for('line')}}">
+    <dl>
+      {% if online %}
+        <input type=submit value="Offline">
+      {% else %}
+        <input type=submit value="Online">
+      {% endif %}
+    </dl>
+  </form>
+
   <h2>Upload new file:</h2> 
 
   <form method=post enctype='multipart/form-data' action="{{ url_for('blob')}}">

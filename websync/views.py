@@ -41,8 +41,10 @@ def blob():
     print "Port: ", node_port
     print "IP: ", node_ip
     print "ID: ", node_id
+    global online
+    print "Online: ", online
     if request.method == 'GET':
-        return render_template('show_files.html', node_port=node_port, node_ip=node_ip, node_id=node_id, blobs=db_session.query(Blob).order_by(Blob.id))
+        return render_template('show_files.html', node_port=node_port, node_ip=node_ip, node_id=node_id, blobs=db_session.query(Blob).order_by(Blob.id), online=online)
     elif request.method == 'POST':
         # Adding a new file
         f = request.files['blob']
@@ -81,7 +83,9 @@ def blob_redirect():
 @app.route('/blob/<int:blob_id>', methods=['GET', 'PUT', 'DELETE', 'POST'])
 def show_blob(blob_id):
     b=db_session.query(Blob).get(blob_id)
+    global online
     if request.method == 'GET':
+        print "Online: ", online
         return render_template('show_file.html', node_port=node_port, node_ip=node_ip, node_id=node_id, blob=b)
     elif request.method == 'PUT':
         # Adding a new file
@@ -110,6 +114,7 @@ def show_blob(blob_id):
                     "upload_date":str(b.upload_date),
                     "file_last_update":str(b.last_change),
                     "file_previous_update":str(b.second_last_change)}
+            global online
             if(online):
                 rabbitmq.emit_update(json.dumps(data))
             else:
@@ -128,6 +133,7 @@ def show_blob(blob_id):
                 "upload_date":str(b.upload_date),
                 "file_last_update":str(b.last_change),
                 "file_previous_update":str(b.second_last_change)}
+        global online
         if(online):
             rabbitmq.emit_update(json.dumps(data))
         else:
@@ -155,7 +161,16 @@ def dowload_blob(blob_id):
         response.data = blob.lob
         return response
 
+@app.route('/line', methods=['GET', 'POST'])
+def line():
+    if request.method == 'GET':
+        return redirect(url_for('blob'))
+    elif request.method == 'POST':
+        toggle_online()
+        return redirect(url_for('blob'))
+
 def toggle_online():
+    global online
     if(online==True):
         online=False
         rabbitmq.set_online(False)
