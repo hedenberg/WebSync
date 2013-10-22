@@ -109,6 +109,7 @@ def reupload(body_dict):
             "file_id":b.id, 
             "upload_date":str(b.upload_date),
             "file_last_update":str(b.last_change)}
+    emit_update(json.dumps(data))
 
 def handle_conflict(body_dict):
     # Adding a new file

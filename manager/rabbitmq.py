@@ -132,12 +132,13 @@ def sync_blobs(body_dict):
                 #Update has changed on cloud when node was offline
                 if not (blob_last_change == blob_last_sync):
                     #AMAGAAAD CONFLICT
-                    print ""
+                    print "Manager and node has file, conflict detected"
                     data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
                             "type":"CONFLICT",
                             "node_id":sync_node.id,
                             "file_id":blob_id}
                     emit_manager(json.dumps(data))
+                print "Pushing manager-version to all nodes"
                 data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
                     "type":"POST",
                     "node_id":source_node.id,
@@ -155,6 +156,7 @@ def sync_blobs(body_dict):
                     blob_manager.last_change =  datetime.strptime(blob_last_change, date_format)
                     blob_manager.last_sync = blob_manager.last_change
                     db_session.commit()
+                    print "Node changed file but hadn't synced it. Manager tells everyone to pull from node"
                     data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
                             "type":"PUT",
                             "node_id":sync_node.id,
@@ -166,6 +168,7 @@ def sync_blobs(body_dict):
                             "file_last_sync":str(blob_manager.last_sync)}
                     emit_manager(json.dumps(data))
         else:
+            print "Node does not have file, tells node to get it from a source-node"
             data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
                     "type":"POST",
                     "node_id":source_node.id,
@@ -191,11 +194,13 @@ def sync_blobs(body_dict):
                     #Update has changed on cloud when node was offline
                     if not (blob_node_last_change == blob_node_last_sync):
                         #AMAGAAAD CONFLICT
+                        print "Conflict found in second for-loop.. weird"
                         data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
                                 "type":"CONFLICT",
                                 "node_id":sync_node.id,
                                 "file_id":blob_node_id}
                         emit_manager(json.dumps(data))
+                    print "Second loop.. sending file to node"
                     data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
                         "type":"POST",
                         "node_id":source_node.id,
@@ -213,6 +218,7 @@ def sync_blobs(body_dict):
                         blob_manager.last_change =  datetime.strptime(blob_node_last_change, date_format)
                         blob_manager.last_sync = blob_manager.last_change
                         db_session.commit()
+                        print "Node has changed file. Tells all other nodes to pull from it"
                         data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
                                 "type":"PUT",
                                 "node_id":sync_node.id,
@@ -224,6 +230,7 @@ def sync_blobs(body_dict):
                                 "file_last_sync":str(blob_manager.last_sync)}
                         emit_manager(json.dumps(data))
             else:
+                print "Node has added file when offline, asks it to push it again"
                 data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
                         "type":"REUPLOAD",
                         "node_id":sync_node.id,
