@@ -60,8 +60,6 @@ def rec_manager(node_id_, node_ip_, port_): #Nodes receieves messages from Manag
                         pass
                     elif body_dict["type"] == "STATUS":
                         pass
-                    elif body_dict["type"] == "CONFLICT":
-                        handle_conflict(body_dict)
                     elif body_dict["type"] == "REUPLOAD":
                         reupload(body_dict)
                 else:
