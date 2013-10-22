@@ -10,6 +10,7 @@ class Node(Base):
     process_id = Column(String(50))
     create_date = Column(DateTime, default=datetime.utcnow)
     last_sync = Column(DateTime, default=datetime.utcnow)
+    status = Column(Integer, default=0)
 
     def __init__(self, ip, port):
         self.ip = ip
@@ -23,12 +24,12 @@ class Blob(Base):
     id = Column(Integer, primary_key=True)
     upload_date = Column(DateTime)
     last_change = Column(DateTime)
-    second_last_change = Column(DateTime)
+    last_sync = Column(DateTime)
 
-    def __init__(self, upload_date, last_change, second_last_change):
+    def __init__(self, upload_date, last_change, last_sync):
         self.upload_date = upload_date
         self.last_change = last_change
-        self.second_last_change = second_last_change
+        self.last_sync = last_sync
 
     def __repr__(self):
         return '<ID %r>' % (self.id)

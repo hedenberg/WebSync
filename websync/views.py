@@ -63,8 +63,7 @@ def blob():
                 "node_port":node_port, 
                 "file_id":b.id, 
                 "upload_date":str(b.upload_date),
-                "file_last_update":str(b.last_change),
-                "file_previous_update":str(b.second_last_change)}
+                "file_last_update":str(b.last_change)}
         if(online):        
             rabbitmq.emit_update(json.dumps(data))
         else:
@@ -167,6 +166,14 @@ def line():
         return redirect(url_for('blob'))
     elif request.method == 'POST':
         toggle_online()
+        return redirect(url_for('blob'))
+
+@app.route('/sync', methods=['GET', 'POST'])
+def sync():
+    if request.method == 'GET':
+        return redirect(url_for('blob'))
+    elif request.method == 'POST':
+        rabbitmq.request_sync(node_id, node_ip, node_port)
         return redirect(url_for('blob'))
 
 def toggle_online():

@@ -4,10 +4,16 @@
   <form method=post enctype='multipart/form-data' action="{{ url_for('line')}}">
     <dl>
       {% if online %}
-        <input type=submit value="Offline">
+        Currently: Online - <input type=submit value="Go Offline">
       {% else %}
-        <input type=submit value="Online">
+        Currently: Offline -<input type=submit value="Go Online">
       {% endif %}
+    </dl>
+  </form>
+
+  <form method=post enctype='multipart/form-data' action="{{ url_for('sync')}}">
+    <dl>
+      <dd><input type=submit value="Sync">
     </dl>
   </form>
 

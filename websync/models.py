@@ -15,7 +15,7 @@ class Blob(Base):
     file_size = Column(String(50))
     upload_date = Column(DateTime, default=datetime.utcnow)
     last_change = Column(DateTime, default=datetime.utcnow)
-    second_last_change = Column(DateTime, default=datetime.utcnow)
+    last_sync = Column(DateTime)
 
     def __init__(self, filename, lob, size):
         self.filename = filename

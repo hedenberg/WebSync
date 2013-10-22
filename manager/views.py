@@ -1,6 +1,6 @@
 import os, socket, subprocess
 from manager import app
-import datetime, requests
+import datetime, requests, uuid
 import flask
 from flask import redirect, request, url_for, render_template, make_response, flash, json
 from werkzeug import secure_filename
@@ -27,6 +27,10 @@ def before_request():
 
 @app.route('/', methods=['GET', 'POST'])
 def manager():
+    #data = {"message_id":(uuid.uuid4().int & (1<<63)-1), 
+            #"type":"STATUS",
+            #"node_id":0}
+    #rabbitmq.emit_manager(json.dumps(data))
     if request.method == 'GET':
         r = requests.get(r'http://jsonip.com')
         ip= r.json()['ip']

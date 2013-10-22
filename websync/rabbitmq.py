@@ -21,12 +21,15 @@ update_channel.exchange_declare(exchange=update_exchange,
 
 last_message_id = -1
 online = True
+node_id = 0
 
 def set_online(bool):
     global online
     online=bool
 
-def rec_manager(node_id): #Nodes receieves messages from Manager
+def rec_manager(node_id_): #Nodes receieves messages from Manager
+    global node_id
+    node_id = node_id_
     result = manager_channel.queue_declare(exclusive=True)
     queue_name = result.method.queue
     manager_channel.queue_bind(exchange=manager_exchange,
@@ -38,14 +41,35 @@ def rec_manager(node_id): #Nodes receieves messages from Manager
             global last_message_id
             print " [rec_manager] %r \n" % (body,)
             body_dict = json.loads(body)
-            if not (last_message_id == body_dict["message_id"]) and not (node_id == body_dict["node_id"]):
-                last_message_id = body_dict["message_id"]
-                if body_dict["type"] == "POST":
-                    add_update_blob(body_dict)
-                elif body_dict["type"] == "PUT":
-                    add_update_blob(body_dict)
-                elif body_dict["type"] == "DELETE":
-                    delete_blob(body_dict)
+            if not (last_message_id == body_dict["message_id"]):
+                if body_dict["type"] == "CONFLICT":
+                    if (node_id == body_dict["node_id"]):
+                        handle_conflict(body_dict)
+                if (node_id == body_dict["node_id"]):
+                    last_message_id = body_dict["message_id"]
+                    #These are returned after this node made an update
+                    if body_dict["type"] == "POST":
+                        add_update_succeed(body_dict)
+                    elif body_dict["type"] == "PUT":
+                        add_update_succeed(body_dict)
+                    elif body_dict["type"] == "DELETE":
+                        pass
+                    elif body_dict["type"] == "STATUS":
+                        pass
+                    elif body_dict["type"] == "CONFLICT":
+                        handle_conflict()
+                    elif body_dict["type"] == "REUPLOAD":
+                        reupload()
+                else:
+                    last_message_id = body_dict["message_id"]
+                    if body_dict["type"] == "POST":
+                        add_update_blob(body_dict)
+                    elif body_dict["type"] == "PUT":
+                        add_update_blob(body_dict)
+                    elif body_dict["type"] == "DELETE":
+                        delete_blob(body_dict)
+                    elif body_dict["type"] == "STATUS":
+                        status(body_dict)
             else:
                 # Repeated message or message derived from me
                 print "json: node_ip", body_dict["node_ip"]
@@ -63,12 +87,40 @@ def emit_update(txt):  #Nodes sends messages to Manager
 
 def request_sync(node_id, node_ip, node_port):
     print "requesting sync"
+    blobs=db_session.query(Blob).order_by(Blob.id)
+    blob_array = []
+    for blob in blobs:
+        blob_array.append((blob.id, str(blob.last_change), str(blob.last_sync)))
     data = {"message_id":(uuid.uuid4().int & (1<<63)-1), 
             "type":"SYNC",
             "node_id":node_id,
             "node_ip":node_ip,
-            "node_port":node_port, }
+            "node_port":node_port, 
+            "blobs":blob_array}
     emit_update(json.dumps(data))
+
+def handle_conflict(body_dict):
+    # Adding a new file
+    old_blob = db_session.query(Blob).get(body_dict["file_id"])
+    old_filename=old_blob.filename.split(".")
+    new_filename = ""
+    try:
+        new_filename=old_filename[0]+"_conflict"+"."+old_filename[1]
+    except IndexError:
+        new_filename=old_filename[0]+"_conflict"
+    new_blob = Blob(new_filename, old_blob.lob, old_blob.file_size)
+    db_session.add(new_blob)
+    db_session.delete(old_blob)
+    db_session.commit()
+
+    data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
+            "type":"POST",
+            "node_id":node_id,
+            "node_ip":node_ip,
+            "node_port":node_port, 
+            "file_id":new_blob.id, 
+            "upload_date":str(new_blob.upload_date),
+            "file_last_update":str(new_blob.last_change)}
 
 def add_update_blob(body_dict):
     response = urllib2.urlopen("http://%s:%d/blob/%d/download" % (body_dict["node_ip"], body_dict["node_port"], body_dict["file_id"]))
@@ -88,7 +140,13 @@ def add_update_blob(body_dict):
         b.filesize = f_size
     date_format = '%Y-%m-%d %H:%M:%S.%f'
     b.last_change = datetime.strptime(body_dict["file_last_update"], date_format)
-    b.upload_date = datetime.strptime(body_dict["file_previous_update"], date_format)
+    b.last_sync = datetime.strptime(body_dict["file_last_sync"], date_format)
+    db_session.commit()
+
+def add_update_succeed(body_dict):
+    date_format = '%Y-%m-%d %H:%M:%S.%f'
+    b=db_session.query(Blob).get(body_dict["file_id"])
+    b.last_sync = datetime.strptime(body_dict["file_last_sync"], date_format)
     db_session.commit()
 
 def delete_blob(body_dict):
@@ -96,3 +154,14 @@ def delete_blob(body_dict):
     if not b == None:
         db_session.delete(b)
         db_session.commit()
+
+def status(body_dict):
+    blobs=db_session.query(Blob).order_by(Blob.id)
+    blob_array = []
+    for blob in blobs:
+        blob_array.append((blob.id, str(blob.last_change), str(blob.last_sync)))
+    data = {"message_id":(uuid.uuid4().int & (1<<63)-1), 
+            "type":"STATUS",
+            "node_id":node_id,
+            "blobs":blob_array}
+    emit_update(json.dumps(data))
