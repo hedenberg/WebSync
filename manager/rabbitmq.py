@@ -128,7 +128,7 @@ def sync_blobs(body_dict):
                 break
         if not blob_node == None:
             blob_id, blob_last_change, blob_last_sync = blob_node
-            if not (blob_last_sync == blob_manager.last_sync):
+            if not (blob_last_sync == str(blob_manager.last_sync)):
                 #Update has changed on cloud when node was offline
                 if not (blob_last_change == blob_last_sync):
                     #AMAGAAAD CONFLICT
@@ -190,7 +190,7 @@ def sync_blobs(body_dict):
                     blob_manager=b
                     break
             if not blob_manager == None:
-                if not (blob_node_last_sync == blob_manager.last_sync):
+                if not (blob_node_last_sync == str(blob_manager.last_sync)):
                     #Update has changed on cloud when node was offline
                     if not (blob_node_last_change == blob_node_last_sync):
                         #AMAGAAAD CONFLICT
