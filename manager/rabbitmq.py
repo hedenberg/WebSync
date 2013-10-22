@@ -269,30 +269,29 @@ def add_blob(body_dict):
             "file_id":body_dict["file_id"], 
             "upload_date":body_dict["upload_date"],
             "file_last_update":body_dict["file_last_update"],
-            "file_last_sync":str(b1)}
+            "file_last_sync":body_dict["file_last_update"]}
     emit_manager(json.dumps(data))
 
 def update_blob(body_dict):
     date_format = '%Y-%m-%d %H:%M:%S.%f'
     b0 = datetime.strptime(body_dict["upload_date"], date_format)
     b1 = datetime.strptime(body_dict["file_last_update"], date_format)
-    b2 = datetime.utcnow()
     
     b=db_session.query(Blob).get(body_dict["file_id"])
     if b == None:
-        b = Blob(b0, b1, b2)
+        b = Blob(b0, b1, b1)
         db_session.add(b)
         db_session.commit()
         b.id = body_dict["file_id"]
         b.upload_date = b0
         b.last_change = b1
-        b.last_sync = b2
+        b.last_sync = b1
         db_session.commit()
     else:
         date_format = '%Y-%m-%d %H:%M:%S.%f'
         b.upload_date = b0
         b.last_change = b1
-        b.second_last_change = b2
+        b.last_sync = b1
         db_session.commit()
     data = {"message_id":body_dict["message_id"],
             "type":body_dict["type"],
@@ -302,7 +301,7 @@ def update_blob(body_dict):
             "file_id":body_dict["file_id"], 
             "upload_date":body_dict["upload_date"],
             "file_last_update":body_dict["file_last_update"],
-            "file_last_sync":str(b2)}
+            "file_last_sync":body_dict["file_last_update"]}
     emit_manager(json.dumps(data))
 
 def delete_blob(body_dict):
