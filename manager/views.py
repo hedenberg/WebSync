@@ -54,11 +54,12 @@ def manager():
             db_session.commit()
             if ip==my_ip or ip==my_ip2:
                 n.process_id = run_server_on_container("websync", port, ip, n.id)
+                print "Processid: ", n.process_id
                 db_session.commit()
                 flash('Node created.')
             else:
-                print "katt"
                 n.process_id = run_server_on_openstack("websync", port, ip, n.id)
+                print "Processid: ", n.process_id
                 db_session.commit()
                 flash('Node created.')
 

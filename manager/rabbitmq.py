@@ -191,26 +191,27 @@ def sync_blobs(body_dict):
                     break
             if not blob_manager == None:
                 if not (blob_node_last_sync == str(blob_manager.last_sync)):
-                    #Update has changed on cloud when node was offline
-                    if not (blob_node_last_change == blob_node_last_sync):
-                        #AMAGAAAD CONFLICT
-                        print "Conflict found in second for-loop.. weird"
-                        data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
-                                "type":"CONFLICT",
-                                "node_id":sync_node.id,
-                                "file_id":blob_node_id}
-                        emit_manager(json.dumps(data))
-                    print "Second loop.. sending file to node"
-                    data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
-                        "type":"POST",
-                        "node_id":source_node.id,
-                        "node_ip":source_node.ip,
-                        "node_port":source_node.port, 
-                        "file_id":blob_manager.id, 
-                        "upload_date":str(blob_manager.upload_date),
-                        "file_last_update":str(blob_manager.last_change),
-                        "file_last_sync":str(blob_manager.last_sync)}
-                    emit_manager(json.dumps(data))
+                    pass
+                #    #Update has changed on cloud when node was offline
+                #    if not (blob_node_last_change == blob_node_last_sync):
+                #        #AMAGAAAD CONFLICT
+                #        print "Conflict found in second for-loop.. weird"
+                #        data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
+                #                "type":"CONFLICT",
+                #                "node_id":sync_node.id,
+                #                "file_id":blob_node_id}
+                #        emit_manager(json.dumps(data))
+                #    print "Second loop.. sending file to node"
+                #    data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
+                #        "type":"POST",
+                #        "node_id":source_node.id,
+                #        "node_ip":source_node.ip,
+                #        "node_port":source_node.port, 
+                #        "file_id":blob_manager.id, 
+                #        "upload_date":str(blob_manager.upload_date),
+                #        "file_last_update":str(blob_manager.last_change),
+                #        "file_last_sync":str(blob_manager.last_sync)}
+                #    emit_manager(json.dumps(data))
                 else:
                     if not (blob_node_last_change== str(blob_manager.last_change)):
                         #This node has changed file when offline.
