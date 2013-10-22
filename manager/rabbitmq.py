@@ -116,26 +116,85 @@ def sync_blobs(body_dict):
             source_node = node
             break
 
-    if not source_node == sync_node:
-        blobs_manager=db_session.query(Blob).order_by(Blob.id)
-        for blob_manager in blobs_manager:
-            blobs_nodes=body_dict["blobs"]
-            blob_node=None
-            for b in blobs_nodes:
-                b_id, b_last_change, b_last_sync = b
-                if b_id == blob_manager.id:
-                    blob_node=b
+    #if not source_node == sync_node:
+    blobs_manager=db_session.query(Blob).order_by(Blob.id)
+    for blob_manager in blobs_manager:
+        blobs_node=body_dict["blobs"]
+        blob_node=None
+        for b in blobs_node:
+            b_id, b_last_change, b_last_sync = b
+            if b_id == blob_manager.id:
+                blob_node=b
+                break
+        if not blob_node == None:
+            blob_id, blob_last_change, blob_last_sync = blob_node
+            if not (blob_last_sync == blob_manager.last_sync):
+                #Update has changed on cloud when node was offline
+                if not (blob_last_change == blob_last_sync):
+                    #AMAGAAAD CONFLICT
+                    print ""
+                    data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
+                            "type":"CONFLICT",
+                            "node_id":sync_node.id,
+                            "file_id":blob_id}
+                    emit_manager(json.dumps(data))
+                data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
+                    "type":"POST",
+                    "node_id":source_node.id,
+                    "node_ip":source_node.ip,
+                    "node_port":source_node.port, 
+                    "file_id":blob_manager.id, 
+                    "upload_date":str(blob_manager.upload_date),
+                    "file_last_update":str(blob_manager.last_change),
+                    "file_last_sync":str(blob_manager.last_sync)}
+                emit_manager(json.dumps(data))
+            else:
+                if not (blob_last_change== str(blob_manager.last_change)):
+                    #This node has changed file when offline.
+                    date_format = '%Y-%m-%d %H:%M:%S.%f'
+                    blob_manager.last_change =  datetime.strptime(blob_last_change, date_format)
+                    blob_manager.last_sync = blob_manager.last_change
+                    db_session.commit()
+                    data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
+                            "type":"PUT",
+                            "node_id":sync_node.id,
+                            "node_ip":sync_node.ip,
+                            "node_port":sync_node.port, 
+                            "file_id":blob_manager.id, 
+                            "upload_date":str(blob_manager.upload_date),
+                            "file_last_update":str(blob_manager.last_change),
+                            "file_last_sync":str(blob_manager.last_sync)}
+                    emit_manager(json.dumps(data))
+        else:
+            data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
+                    "type":"POST",
+                    "node_id":source_node.id,
+                    "node_ip":source_node.ip,
+                    "node_port":source_node.port, 
+                    "file_id":blob_manager.id, 
+                    "upload_date":str(blob_manager.upload_date),
+                    "file_last_update":str(blob_manager.last_change),
+                    "file_last_sync":str(blob_manager.last_sync)}
+            emit_manager(json.dumps(data))
+    #else:
+    blobs_node=body_dict["blobs"]
+    blobs_manager=db_session.query(Blob).order_by(Blob.id)
+    for blob_node in blobs_node:
+            blob_node_id, blob_node_last_change, blob_node_last_sync = blob_node
+            blob_manager = None
+            for b in blobs_manager:
+                if b.id == blob_node_id:
+                    blob_manager=b
                     break
-            if not blob_node == None:
-                blob_id, blob_last_change, blob_last_sync = blob_node
-                if not (blob_last_sync == blob_manager.last_sync):
+            if not blob_manager == None:
+                if not (blob_node_last_sync == blob_manager.last_sync):
                     #Update has changed on cloud when node was offline
-                    if not (blob_last_change == blob_last_sync):
+                    if not (blob_node_last_change == blob_node_last_sync):
                         #AMAGAAAD CONFLICT
                         data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
                                 "type":"CONFLICT",
                                 "node_id":sync_node.id,
-                                "file_id":blob_id}
+                                "file_id":blob_node_id}
                         emit_manager(json.dumps(data))
                     data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
                         "type":"POST",
@@ -148,10 +207,10 @@ def sync_blobs(body_dict):
                         "file_last_sync":str(blob_manager.last_sync)}
                     emit_manager(json.dumps(data))
                 else:
-                    if not (blob_last_change== str(blob_manager.last_change)):
+                    if not (blob_node_last_change== str(blob_manager.last_change)):
                         #This node has changed file when offline.
                         date_format = '%Y-%m-%d %H:%M:%S.%f'
-                        blob_manager.last_change =  datetime.strptime(blob_last_change, date_format)
+                        blob_manager.last_change =  datetime.strptime(blob_node_last_change, date_format)
                         blob_manager.last_sync = blob_manager.last_change
                         db_session.commit()
                         data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
@@ -166,67 +225,10 @@ def sync_blobs(body_dict):
                         emit_manager(json.dumps(data))
             else:
                 data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
-                        "type":"POST",
-                        "node_id":source_node.id,
-                        "node_ip":source_node.ip,
-                        "node_port":source_node.port, 
-                        "file_id":blob_manager.id, 
-                        "upload_date":str(blob_manager.upload_date),
-                        "file_last_update":str(blob_manager.last_change),
-                        "file_last_sync":str(blob_manager.last_sync)}
+                        "type":"REUPLOAD",
+                        "node_id":sync_node.id,
+                        "file_id":blob_id}
                 emit_manager(json.dumps(data))
-    else:
-        blobs_manager=db_session.query(Blob).order_by(Blob.id)
-        for blob_node in blobs_nodes:
-                blob_node_id, blob_node_last_change, blob_node_last_sync = blob_node
-                blob_manager = None
-                for b in blobs_manager:
-                    if b.id == blob_node_id:
-                        blob_manager=b
-                        break
-                if not blob_manager == None:
-                    if not (blob_node_last_sync == blob_manager.last_sync):
-                        #Update has changed on cloud when node was offline
-                        if not (blob_node_last_change == blob_node_last_sync):
-                            #AMAGAAAD CONFLICT
-                            data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
-                                    "type":"CONFLICT",
-                                    "node_id":sync_node.id,
-                                    "file_id":blob_node_id}
-                            emit_manager(json.dumps(data))
-                        data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
-                            "type":"POST",
-                            "node_id":source_node.id,
-                            "node_ip":source_node.ip,
-                            "node_port":source_node.port, 
-                            "file_id":blob_manager.id, 
-                            "upload_date":str(blob_manager.upload_date),
-                            "file_last_update":str(blob_manager.last_change),
-                            "file_last_sync":str(blob_manager.last_sync)}
-                        emit_manager(json.dumps(data))
-                    else:
-                        if not (blob_node_last_change== str(blob_manager.last_change)):
-                            #This node has changed file when offline.
-                            date_format = '%Y-%m-%d %H:%M:%S.%f'
-                            blob_manager.last_change =  datetime.strptime(blob_node_last_change, date_format)
-                            blob_manager.last_sync = blob_manager.last_change
-                            db_session.commit()
-                            data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
-                                    "type":"PUT",
-                                    "node_id":sync_node.id,
-                                    "node_ip":sync_node.ip,
-                                    "node_port":sync_node.port, 
-                                    "file_id":blob_manager.id, 
-                                    "upload_date":str(blob_manager.upload_date),
-                                    "file_last_update":str(blob_manager.last_change),
-                                    "file_last_sync":str(blob_manager.last_sync)}
-                            emit_manager(json.dumps(data))
-                else:
-                    data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
-                            "type":"REUPLOAD",
-                            "node_id":sync_node.id,
-                            "file_id":blob_id}
-                    emit_manager(json.dumps(data))
 
 
 

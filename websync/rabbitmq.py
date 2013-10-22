@@ -59,7 +59,7 @@ def rec_manager(node_id_): #Nodes receieves messages from Manager
                     elif body_dict["type"] == "CONFLICT":
                         handle_conflict()
                     elif body_dict["type"] == "REUPLOAD":
-                        reupload()
+                        reupload(body_dict)
                 else:
                     last_message_id = body_dict["message_id"]
                     if body_dict["type"] == "POST":
@@ -98,6 +98,17 @@ def request_sync(node_id, node_ip, node_port):
             "node_port":node_port, 
             "blobs":blob_array}
     emit_update(json.dumps(data))
+
+def reupload(body_dict):
+    b = db_session.query(Blob).get(body_dict["file_id"])
+    data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
+            "type":"POST",
+            "node_id":node_id,
+            "node_ip":node_ip,
+            "node_port":node_port, 
+            "file_id":b.id, 
+            "upload_date":str(b.upload_date),
+            "file_last_update":str(b.last_change)}
 
 def handle_conflict(body_dict):
     # Adding a new file
