@@ -111,8 +111,7 @@ def show_blob(blob_id):
                     "node_port":node_port, 
                     "file_id":b.id, 
                     "upload_date":str(b.upload_date),
-                    "file_last_update":str(b.last_change),
-                    "file_previous_update":str(b.second_last_change)}
+                    "file_last_update":str(b.last_change)}
             global online
             if(online):
                 rabbitmq.emit_update(json.dumps(data))
@@ -131,7 +130,7 @@ def show_blob(blob_id):
                 "file_id":b.id, 
                 "upload_date":str(b.upload_date),
                 "file_last_update":str(b.last_change),
-                "file_previous_update":str(b.second_last_change)}
+                "file_last_sync":str(b.last_sync)}
         global online
         if(online):
             rabbitmq.emit_update(json.dumps(data))

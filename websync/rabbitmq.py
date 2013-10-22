@@ -22,14 +22,18 @@ update_channel.exchange_declare(exchange=update_exchange,
 last_message_id = -1
 online = True
 node_id = 0
+node_ip = ""
+nope_port = 0
 
 def set_online(bool):
     global online
     online=bool
 
-def rec_manager(node_id_): #Nodes receieves messages from Manager
-    global node_id
+def rec_manager(node_id_, node_ip_, port_): #Nodes receieves messages from Manager
+    global node_id, node_ip, node_port
     node_id = node_id_
+    node_ip = node_ip_
+    node_port = port_
     result = manager_channel.queue_declare(exclusive=True)
     queue_name = result.method.queue
     manager_channel.queue_bind(exchange=manager_exchange,
@@ -100,6 +104,7 @@ def request_sync(node_id, node_ip, node_port):
     emit_update(json.dumps(data))
 
 def reupload(body_dict):
+    global node_id, node_ip, node_port
     b = db_session.query(Blob).get(body_dict["file_id"])
     data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
             "type":"POST",

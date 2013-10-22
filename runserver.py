@@ -21,7 +21,7 @@ views.node_port = port
 views.node_ip = node_ip
 views.node_id = node_id
 try:
-    file_sync_thread=threading.Thread(target=rabbitmq.rec_manager, args=(node_id,))
+    file_sync_thread=threading.Thread(target=rabbitmq.rec_manager, args=(node_id,node_ip, port))
     file_sync_thread.setDaemon(True)
     file_sync_thread.start()
 except (KeyboardInterrupt, SystemExit):

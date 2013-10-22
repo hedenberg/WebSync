@@ -234,7 +234,7 @@ def sync_blobs(body_dict):
                 data = {"message_id":(uuid.uuid4().int & (1<<63)-1),
                         "type":"REUPLOAD",
                         "node_id":sync_node.id,
-                        "file_id":blob_id}
+                        "file_id":blob_node_id}
                 emit_manager(json.dumps(data))
 
 
@@ -246,16 +246,21 @@ def add_blob(body_dict):
     date_format = '%Y-%m-%d %H:%M:%S.%f'
     b0 = datetime.strptime(body_dict["upload_date"], date_format)
     b1 = datetime.strptime(body_dict["file_last_update"], date_format)
-    b2 = b1
-    b = Blob(b0, b1, b2)
-    db_session.add(b)
-    db_session.commit()
+    b=db_session.query(Blob).get(body_dict["file_id"])
+    if b == None:
+        print "Blob did not exist"
+        b = Blob(b0, b1, b1)
+        db_session.add(b)
+        db_session.commit()
     b.id = body_dict["file_id"]
     b.upload_date = b0
     b.last_change = b1
-    b.last_sync = b2
+    b.last_sync = b1
     db_session.commit()
-
+    print "add_blob"
+    bs=db_session.query(Blob).order_by(Blob.id)
+    for b_ in bs:
+        print "blob: ",b_.id
     data = {"message_id":body_dict["message_id"],
             "type":body_dict["type"],
             "node_id":body_dict["node_id"],
@@ -264,7 +269,7 @@ def add_blob(body_dict):
             "file_id":body_dict["file_id"], 
             "upload_date":body_dict["upload_date"],
             "file_last_update":body_dict["file_last_update"],
-            "file_last_sync":str(b2)}
+            "file_last_sync":str(b1)}
     emit_manager(json.dumps(data))
 
 def update_blob(body_dict):
