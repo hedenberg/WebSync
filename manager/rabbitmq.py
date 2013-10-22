@@ -9,13 +9,13 @@ from manager import node_status as ns
 #from manager.views import manager_receive
 
 manager_exchange ="Manager" #app.port #130.240.110.14
-manager_connection = pika.BlockingConnection(pika.ConnectionParameters(host='130.240.110.14'))
+manager_connection = pika.BlockingConnection(pika.ConnectionParameters(host='130.240.233.94'))
 manager_channel = manager_connection.channel()
 manager_channel.exchange_declare(exchange=manager_exchange,
                                  type='fanout')
 
 update_exchange ="Update" #app.port
-update_connection = pika.BlockingConnection(pika.ConnectionParameters(host='130.240.110.14'))
+update_connection = pika.BlockingConnection(pika.ConnectionParameters(host='130.240.233.94'))
 update_channel = update_connection.channel()
 update_channel.exchange_declare(exchange=update_exchange,
                                 type='fanout')
