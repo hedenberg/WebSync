@@ -21,9 +21,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #config.vm.synced_folder ".", "/home/core/share", id: "core", :nfs => true, :mount_options => ['nolock,udp,vers=3']
 
   config.vm.network :private_network, :ip => "10.10.10.15"
-  config.vm.network :forwarded_port, :host => 5672, :guest => 5672
-  config.vm.network :forwarded_port, :host => 4369, :guest => 4369
-  config.vm.network :forwarded_port, :host => 35197, :guest => 35197
+  #config.vm.network :forwarded_port, :host => 5672, :guest => 5672
+  #config.vm.network :forwarded_port, :host => 4369, :guest => 4369
+  #config.vm.network :forwarded_port, :host => 35197, :guest => 35197
 
   (8000..8098).each do |port|
     config.vm.network :forwarded_port, :host => port, :guest => port
