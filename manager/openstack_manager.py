@@ -3,7 +3,7 @@ import boto.ec2
 import time
 #import config
 
-COREOS_OCT22 =  "ami-00000022"
+COREOS_OCT22 =  "ami-00000023"
 #COREOS_IMAGE = "ami-00000003"
 #COREOS_SNAP = "ami-0000001d"
 #COREOS_CONT = "ami-0000001e"
