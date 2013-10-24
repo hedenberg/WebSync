@@ -12,7 +12,7 @@ node_port = 0
 node_ip = 0
 node_id = 0
 
-online = True
+online = False
 
 @app.before_first_request
 def start_sync():

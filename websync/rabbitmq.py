@@ -3,7 +3,7 @@ from flask import json
 from werkzeug import secure_filename
 from datetime import datetime
 import pika
-import sys, urllib2, cgi, uuid
+import sys, urllib2, cgi, uuid, time
 from websync.database import db_session
 from websync.models import Blob
 
@@ -20,7 +20,7 @@ update_channel.exchange_declare(exchange=update_exchange,
                                 type='fanout')
 
 last_message_id = -1
-online = True
+online = False
 node_id = 0
 node_ip = ""
 nope_port = 0
@@ -34,6 +34,7 @@ def rec_manager(node_id_, node_ip_, port_): #Nodes receieves messages from Manag
     node_id = node_id_
     node_ip = node_ip_
     node_port = port_
+    time.sleep(5)
     result = manager_channel.queue_declare(exclusive=True)
     queue_name = result.method.queue
     manager_channel.queue_bind(exchange=manager_exchange,
