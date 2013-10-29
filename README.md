@@ -7,10 +7,7 @@ For more information, see https://sites.google.com/site/d7024eboxdrop
 
 ## Setup and Testing
 
-1) Make sure you have Vagrant
-
-* [Virtualbox][virtualbox] 4.0 or greater.
-* [Vagrant][vagrant] 1.3.1 or greater.
+1) Make sure you have Vagrant 1.3.1 or greater and Virtualbox 4.0 or greater.
 
 2) Clone this git
 
