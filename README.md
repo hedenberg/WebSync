@@ -14,6 +14,7 @@ For more information, see https://sites.google.com/site/d7024eboxdrop
 3) Start vagrant
 
 ```
+cd WebSync
 vagrant up
 vagrant ssh
 ```
