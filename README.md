@@ -6,16 +6,23 @@ Distributed File Synchronization Service as a lab in the course D7024E
 For more information, see https://sites.google.com/site/d7024eboxdrop
 
 ## Setup and Testing
+
 1) Make sure you have Vagrant
+
 * [Virtualbox][virtualbox] 4.0 or greater.
 * [Vagrant][vagrant] 1.3.1 or greater.
+
 2) Clone this git
+
 3) Start vagrant
+
 ```
 vagrant up
 vagrant ssh
 ```
+
 4) Unfortunately you need to start by installing some things
+
 ```
 sudo apt-get install python-pip
 cd /vagrant/
@@ -32,16 +39,22 @@ sudo sh -c "echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.
 sudo apt-get update
 sudo apt-get install lxc-docker
 ```
+
 5) Create the base docker-image 
+
 ```
 sudo docker build -t websync .
 # Wait a very long time. I recommend coffee.
 ```
+
 6) You can now run the manager
+
 ```
 python runmanager.py [Port, 8000 if left empty]
 ```
+
 7) Open your favorit browser and visit localhost:[Port]
+
 Remember to create nodes at 10.10.10.15 if you are behind a firewall. 
 The nodes are currently started at offline-state. Change it by pressing “Go Online”.
 
